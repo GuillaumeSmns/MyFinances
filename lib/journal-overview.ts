@@ -1,0 +1,132 @@
+import type { FinanceItem } from "@/components/dashboard/types";
+import type { JournalMonthSnapshot } from "@/lib/journal-storage";
+import { loadAllJournalMonths, listSavedMonthKeys } from "@/lib/journal-storage";
+
+export type JournalOverviewMetrics = {
+  monthlyRevenue: number;
+  monthlyExpenses: number;
+  surplus: number;
+  savingsRate: number;
+  /** Sum of Loan section (monthly loan line items in Journal) */
+  totalDebts: number;
+  /** Sum of Investments section (monthly allocations in Journal) */
+  totalInvestments: number;
+  netCashFlow: number;
+};
+
+export type JournalDerivedHealth = {
+  liquidityScore: number;
+  debtToIncome: number;
+  emergencyMonths: number;
+};
+
+export type CashflowMonthPoint = {
+  monthKey: string;
+  monthLabel: string;
+  revenue: number;
+  expenses: number;
+};
+
+function sumItems(items: FinanceItem[]): number {
+  return items.reduce((acc, item) => acc + item.amount, 0);
+}
+
+export function computeJournalOverviewMetrics(snapshot: JournalMonthSnapshot): JournalOverviewMetrics {
+  const pilotRev = sumItems(snapshot.pilotRevenue);
+  const financialRev = sumItems(snapshot.financialRevenue);
+  const immoRev = sumItems(snapshot.immoRevenue);
+  const monthlyRevenue = pilotRev + financialRev + immoRev;
+
+  const pilotExp = sumItems(snapshot.pilotExpense);
+  const loans = sumItems(snapshot.loanExpense);
+  const everyday = sumItems(snapshot.everydayExpense);
+  const home = sumItems(snapshot.homeCharges);
+  const investments = sumItems(snapshot.investments);
+  const monthlyExpenses = pilotExp + loans + everyday + home + investments;
+
+  const surplus = monthlyRevenue - monthlyExpenses;
+  const savingsRate = monthlyRevenue > 0 ? Math.round((surplus / monthlyRevenue) * 100) : 0;
+
+  return {
+    monthlyRevenue,
+    monthlyExpenses,
+    surplus,
+    savingsRate,
+    totalDebts: loans,
+    totalInvestments: investments,
+    netCashFlow: surplus,
+  };
+}
+
+export function computeJournalDerivedHealth(
+  metrics: JournalOverviewMetrics,
+): JournalDerivedHealth {
+  const debtToIncome =
+    metrics.monthlyRevenue > 0 ? metrics.totalDebts / metrics.monthlyRevenue : 0;
+  const emergencyMonths =
+    metrics.monthlyExpenses > 0 && metrics.surplus > 0
+      ? Math.round((metrics.surplus / metrics.monthlyExpenses) * 10) / 10
+      : 0;
+  const liquidityScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(38 + metrics.savingsRate * 0.85 + (metrics.surplus >= 0 ? 18 : -12)),
+    ),
+  );
+  return { liquidityScore, debtToIncome, emergencyMonths };
+}
+
+/** Short label for chart axis, e.g. Jan '26 */
+export function formatChartMonthLabel(monthKey: string): string {
+  const parts = monthKey.split("-");
+  if (parts.length !== 2) return monthKey;
+  const y = Number(parts[0]);
+  const m = Number(parts[1]);
+  if (!Number.isFinite(y) || !Number.isFinite(m)) return monthKey;
+  const d = new Date(y, m - 1, 1);
+  return d.toLocaleDateString("en-AE", { month: "short", year: "2-digit" }).replace(" ", " ");
+}
+
+/**
+ * Builds one point per saved month, chronological (oldest → newest) for charts.
+ * Pass the raw record from `loadAllJournalMonths()` (browser only).
+ */
+export function buildCashflowSeriesFromRecord(
+  all: Record<string, JournalMonthSnapshot>,
+): CashflowMonthPoint[] {
+  return Object.keys(all)
+    .sort()
+    .map((monthKey) => {
+      const snap = all[monthKey];
+      const m = computeJournalOverviewMetrics(snap);
+      return {
+        monthKey,
+        monthLabel: formatChartMonthLabel(monthKey),
+        revenue: m.monthlyRevenue,
+        expenses: m.monthlyExpenses,
+      };
+    });
+}
+
+/** Latest saved month key, or null if none. Uses same ordering as `listSavedMonthKeys()` (newest first). */
+export function getLatestSavedJournalMonthKey(): string | null {
+  const keys = listSavedMonthKeys();
+  return keys[0] ?? null;
+}
+
+/**
+ * Reads storage and returns latest snapshot + key, or null.
+ * Browser-only; returns null on server or empty storage.
+ */
+export function getLatestSavedJournalFromStorage(): {
+  monthKey: string;
+  snapshot: JournalMonthSnapshot;
+} | null {
+  if (typeof window === "undefined") return null;
+  const key = getLatestSavedJournalMonthKey();
+  if (!key) return null;
+  const all = loadAllJournalMonths();
+  const snap = all[key];
+  return snap ? { monthKey: key, snapshot: snap } : null;
+}

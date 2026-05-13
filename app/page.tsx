@@ -1,65 +1,334 @@
-import Image from "next/image";
+import Link from "next/link";
+
+type Feature = {
+  title: string;
+  description: string;
+  icon: string;
+};
+
+type Metric = {
+  label: string;
+  value: string;
+  trend: string;
+  positive?: boolean;
+};
+
+type SpendingPoint = {
+  month: string;
+  amount: number;
+};
+
+const features: Feature[] = [
+  {
+    title: "Personal Dashboard",
+    description: "All your financial essentials in one elegant command center.",
+    icon: "PI",
+  },
+  {
+    title: "Expense Tracking",
+    description: "Capture and categorize spending in real time with precision.",
+    icon: "ET",
+  },
+  {
+    title: "Debt Management",
+    description: "Track liabilities and progress toward debt-free milestones.",
+    icon: "DM",
+  },
+  {
+    title: "Budget Planning",
+    description: "Set smart monthly budgets and stay aligned with your goals.",
+    icon: "BP",
+  },
+  {
+    title: "Revenue Tracking",
+    description: "Monitor incoming cash flow from salary, business, and side income.",
+    icon: "RT",
+  },
+  {
+    title: "Investment Overview",
+    description: "Get a concise snapshot of portfolio value and allocations.",
+    icon: "IO",
+  },
+  {
+    title: "Monthly Analytics",
+    description: "Understand trends with clean and actionable visual insights.",
+    icon: "MA",
+  },
+  {
+    title: "Financial Goals",
+    description: "Create long-term targets and track your progress automatically.",
+    icon: "FG",
+  },
+];
+
+const metrics: Metric[] = [
+  { label: "Total Balance", value: "$58,420", trend: "+4.1% this month", positive: true },
+  {
+    label: "Monthly Expenses",
+    value: "$4,280",
+    trend: "-6.4% vs last month",
+    positive: true,
+  },
+  { label: "Savings Rate", value: "32%", trend: "+3.2 pts increase", positive: true },
+  { label: "Debts", value: "$12,750", trend: "2 active loans" },
+];
+
+const spendingTrend: SpendingPoint[] = [
+  { month: "Jan", amount: 3820 },
+  { month: "Feb", amount: 4210 },
+  { month: "Mar", amount: 3650 },
+  { month: "Apr", amount: 4480 },
+  { month: "May", amount: 4280 },
+  { month: "Jun", amount: 4710 },
+  { month: "Jul", amount: 4390 },
+  { month: "Aug", amount: 4920 },
+];
+
+function GlassCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={`rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl transition duration-300 hover:border-cyan-300/30 hover:bg-white/10 ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function FeatureCard({ feature }: { feature: Feature }) {
+  return (
+    <GlassCard className="p-6">
+      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-300/30 bg-cyan-400/10 text-xs font-semibold tracking-wide text-cyan-200">
+        {feature.icon}
+      </div>
+      <h3 className="mb-2 text-lg font-semibold text-white">{feature.title}</h3>
+      <p className="text-sm leading-relaxed text-slate-300">{feature.description}</p>
+    </GlassCard>
+  );
+}
+
+function DashboardMockup() {
+  const maxAmount = Math.max(...spendingTrend.map((point) => point.amount));
+
+  return (
+    <GlassCard className="p-6">
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Financial Snapshot</p>
+          <p className="mt-1 text-lg font-semibold text-white">MyFinances Dashboard</p>
+        </div>
+        <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
+          Live
+        </span>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {metrics.map((item) => (
+          <div
+            key={item.label}
+            className="rounded-xl border border-white/10 bg-slate-950/40 p-4 transition hover:border-cyan-300/30"
+          >
+            <p className="text-xs text-slate-400">{item.label}</p>
+            <p className="mt-2 text-2xl font-semibold text-white">{item.value}</p>
+            <p className={`mt-1 text-xs ${item.positive ? "text-emerald-300" : "text-slate-400"}`}>
+              {item.trend}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 grid gap-3 md:grid-cols-[1.2fr_1fr]">
+        <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm font-medium text-white">Spending Trend</p>
+            <p className="text-xs text-slate-400">Year to date: $34,460</p>
+          </div>
+          <div className="relative h-40">
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
+              <span className="border-t border-white/10" />
+              <span className="border-t border-white/10" />
+              <span className="border-t border-white/10" />
+              <span className="border-t border-white/10" />
+            </div>
+            <div className="relative flex h-full items-end gap-2">
+            {spendingTrend.map((point) => (
+              <div key={point.month} className="group relative flex h-full flex-1 items-end">
+                <div
+                  className="w-full rounded-t-md bg-gradient-to-t from-cyan-500/75 to-violet-400/90 shadow-[0_0_18px_rgba(56,189,248,0.25)]"
+                  style={{ height: `${Math.round((point.amount / maxAmount) * 100)}%` }}
+                />
+                <span className="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 rounded-md border border-white/10 bg-slate-900/95 px-2 py-1 text-[10px] text-slate-200 group-hover:block">
+                  ${point.amount.toLocaleString()}
+                </span>
+              </div>
+            ))}
+            </div>
+          </div>
+          <div className="mt-2 flex justify-between text-[10px] text-slate-400">
+            {spendingTrend.map((point) => (
+              <span key={point.month}>{point.month}</span>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
+          <p className="mb-3 text-sm font-medium text-white">Monthly Input Summary</p>
+          <div className="space-y-3 text-sm">
+            <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3">
+              <p className="text-xs text-slate-400">Revenue</p>
+              <p className="mt-1 text-base font-medium text-emerald-300">$7,400</p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3">
+              <p className="text-xs text-slate-400">Expenses</p>
+              <p className="mt-1 text-base font-medium text-rose-300">$4,280</p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3">
+              <p className="text-xs text-slate-400">Net Monthly Result</p>
+              <p className="mt-1 text-base font-medium text-cyan-200">$3,120</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
+      </div>
+
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 lg:px-8">
+        <Link
+          href="/"
+          className="text-xl font-semibold tracking-tight text-white transition hover:text-cyan-200"
+        >
+          MyFinances
+        </Link>
+        <nav className="flex items-center gap-3">
+          <Link
+            href="/login"
+            className="rounded-full border border-white/15 px-4 py-2 text-sm text-slate-200 transition hover:border-cyan-300/50 hover:text-cyan-200"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Login
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:opacity-90"
           >
-            Documentation
-          </a>
-        </div>
+            Sign Up
+          </Link>
+        </nav>
+      </header>
+
+      <main className="mx-auto w-full max-w-6xl px-6 pb-16 lg:px-8">
+        <section className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:py-20">
+          <div>
+            <p className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-400/10 px-4 py-1 text-xs tracking-[0.18em] text-cyan-200">
+              PREMIUM PERSONAL FINANCE
+            </p>
+            <h1 className="mt-6 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+              Take Control of Your Financial Life
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+              A modern personal finance manager to track income, expenses, debts, savings,
+              investments, and financial goals in one place.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/signup"
+                className="rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.01] hover:opacity-95"
+              >
+                Get Started
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/50 hover:text-cyan-200"
+              >
+                Login
+              </Link>
+            </div>
+          </div>
+          <DashboardMockup />
+        </section>
+
+        <section className="py-12 lg:py-16">
+          <div className="mb-8 max-w-2xl">
+            <h2 className="text-3xl font-semibold text-white">Everything You Need to Master Money</h2>
+            <p className="mt-3 text-slate-300">
+              Purpose-built tools designed to simplify financial operations and improve clarity.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {features.map((feature) => (
+              <FeatureCard key={feature.title} feature={feature} />
+            ))}
+          </div>
+        </section>
+
+        <section className="py-12 lg:py-16">
+          <h2 className="mb-8 text-3xl font-semibold text-white">Dashboard Preview</h2>
+          <DashboardMockup />
+        </section>
+
+        <section className="py-12 lg:py-16">
+          <GlassCard className="p-8 lg:p-10">
+            <h2 className="text-3xl font-semibold text-white">Why MyFinances Works Better</h2>
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
+              <div>
+                <h3 className="text-base font-semibold text-cyan-200">Centralized finance management</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Unify accounts, debts, budgets, and investments under one secure workspace.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-cyan-200">Better visibility</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  See your full financial picture instantly with live summaries and trends.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-cyan-200">Financial discipline</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Build healthier habits through budget alerts and measurable monthly targets.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-cyan-200">Decision making</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Make informed choices with contextual indicators and scenario-based insights.
+                </p>
+              </div>
+              <div className="md:col-span-2">
+                <h3 className="text-base font-semibold text-cyan-200">Clean analytics</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Interpret performance quickly using elegant visual reports and concise metrics.
+                </p>
+              </div>
+            </div>
+          </GlassCard>
+        </section>
       </main>
+
+      <footer className="border-t border-white/10">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8 text-sm text-slate-400 md:flex-row md:items-center md:justify-between lg:px-8">
+          <p>© {new Date().getFullYear()} MyFinances. All rights reserved.</p>
+          <div className="flex items-center gap-5">
+            <a href="#" className="transition hover:text-cyan-200">
+              Features
+            </a>
+            <a href="#" className="transition hover:text-cyan-200">
+              Pricing
+            </a>
+            <a href="#" className="transition hover:text-cyan-200">
+              Contact
+            </a>
+            <Link href="/login" className="transition hover:text-cyan-200">
+              Login
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
