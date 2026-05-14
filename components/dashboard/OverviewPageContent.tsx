@@ -66,7 +66,6 @@ const FALLBACK_METRICS: JournalOverviewMetrics = {
 const FALLBACK_HEALTH: JournalDerivedHealth = {
   liquidityScore: 82,
   debtToIncome: 0.18,
-  emergencyMonths: 4.2,
 };
 
 function buildSampleCashflowSeries(): CashflowMonthPoint[] {
@@ -277,10 +276,6 @@ export function OverviewPageContent() {
             <li className="flex items-center justify-between text-sm">
               <span className="text-slate-300">Debt-to-income (monthly)</span>
               <span className="text-slate-200">{Math.round(health.debtToIncome * 100)}%</span>
-            </li>
-            <li className="flex items-center justify-between text-sm">
-              <span className="text-slate-300">Emergency runway</span>
-              <span className="text-slate-200">{health.emergencyMonths} months</span>
             </li>
           </ul>
         </DashboardCard>

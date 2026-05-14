@@ -77,6 +77,24 @@ function cloneSnapshot(s: JournalMonthSnapshot): JournalMonthSnapshot {
   return JSON.parse(JSON.stringify(s)) as JournalMonthSnapshot;
 }
 
+/**
+ * When the user opens a month that has no saved row yet, seed the editor from the
+ * chronologically latest month that *is* saved (excluding the target key), or fall back
+ * to {@link getDefaultJournalSnapshot} if there is no prior save.
+ */
+export function createJournalSnapshotForNewMonth(monthKey: string): JournalMonthSnapshot {
+  const savedKeys = listSavedMonthKeysChronological().filter((k) => k !== monthKey);
+  if (savedKeys.length === 0) {
+    return getDefaultJournalSnapshot();
+  }
+  const latestKey = savedKeys[savedKeys.length - 1];
+  const latest = loadJournalMonth(latestKey);
+  if (!latest) {
+    return getDefaultJournalSnapshot();
+  }
+  return cloneSnapshot(latest);
+}
+
 export function loadAllJournalMonths(): Record<string, JournalMonthSnapshot> {
   if (typeof window === "undefined") return {};
   try {

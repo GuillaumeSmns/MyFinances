@@ -12,6 +12,7 @@ type FinanceSectionProps = {
   items: FinanceItem[];
   total: number;
   onAmountChange: (id: string, value: number) => void;
+  onLabelChange?: (id: string, label: string) => void;
   onDeleteItem?: (id: string) => void;
   onAddItem?: (label: string, amount: number) => void;
   addButtonLabel?: string;
@@ -24,6 +25,7 @@ export function FinanceSection({
   items,
   total,
   onAmountChange,
+  onLabelChange,
   onDeleteItem,
   onAddItem,
   addButtonLabel,
@@ -36,6 +38,7 @@ export function FinanceSection({
             key={item.id}
             item={item}
             onAmountChange={onAmountChange}
+            onLabelChange={onLabelChange}
             onDelete={onDeleteItem}
           />
         ))}

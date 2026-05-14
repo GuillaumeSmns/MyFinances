@@ -6,9 +6,9 @@ import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { VisualizationPanel } from "@/components/dashboard/VisualizationPanel";
 import type { FinanceItem, SectionTotal } from "@/components/dashboard/types";
 import {
+  createJournalSnapshotForNewMonth,
   deleteJournalMonth,
   formatMonthLabel,
-  getDefaultJournalSnapshot,
   listSavedMonthKeys,
   listSavedMonthKeysChronological,
   loadJournalMonth,
@@ -47,6 +47,9 @@ const sumItems = (items: FinanceItem[]) => items.reduce((acc, item) => acc + ite
 const updateItemAmount = (items: FinanceItem[], id: string, amount: number) =>
   items.map((item) => (item.id === id ? { ...item, amount: Number.isFinite(amount) ? amount : 0 } : item));
 
+const updateItemLabel = (items: FinanceItem[], id: string, label: string) =>
+  items.map((item) => (item.id === id ? { ...item, label: label.trim() === "" ? item.label : label.trim() } : item));
+
 const addItem = (items: FinanceItem[], label: string, amount: number) => [
   ...items,
   { id: makeId(), label, amount },
@@ -72,11 +75,17 @@ function tryChangeMonth(
 
 export function JournalPageContent() {
   const [monthKey, setMonthKey] = useState(() => monthKeyFromDate(new Date()));
-  const [snap, setSnap] = useState<JournalMonthSnapshot>(() => getDefaultJournalSnapshot());
-  const [lastPersistedSerialized, setLastPersistedSerialized] = useState<string>(() =>
-    JSON.stringify(getDefaultJournalSnapshot()),
-  );
-  const [hasSavedCopyOnDisk, setHasSavedCopyOnDisk] = useState(false);
+  const [snap, setSnap] = useState<JournalMonthSnapshot>(() => {
+    const k = monthKeyFromDate(new Date());
+    return loadJournalMonth(k) ?? createJournalSnapshotForNewMonth(k);
+  });
+  const [lastPersistedSerialized, setLastPersistedSerialized] = useState(() => {
+    const k = monthKeyFromDate(new Date());
+    const fromDisk = loadJournalMonth(k);
+    const initial = fromDisk ?? createJournalSnapshotForNewMonth(k);
+    return fromDisk ? JSON.stringify(fromDisk) : JSON.stringify(initial);
+  });
+  const [hasSavedCopyOnDisk, setHasSavedCopyOnDisk] = useState(() => !!loadJournalMonth(monthKeyFromDate(new Date())));
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [storageRevision, setStorageRevision] = useState(0);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -84,7 +93,7 @@ export function JournalPageContent() {
   useEffect(() => {
     startTransition(() => {
       const fromDisk = loadJournalMonth(monthKey);
-      const initial = fromDisk ?? getDefaultJournalSnapshot();
+      const initial = fromDisk ?? createJournalSnapshotForNewMonth(monthKey);
       setSnap(initial);
       setLastPersistedSerialized(fromDisk ? JSON.stringify(fromDisk) : JSON.stringify(initial));
       setHasSavedCopyOnDisk(!!fromDisk);
@@ -124,13 +133,13 @@ export function JournalPageContent() {
   const difference = totalRevenue - totalExpense;
 
   const revenueBreakdown: SectionTotal[] = [
-    { name: "Pilot Revenue", total: revenueTotals.pilot },
+    { name: "Salary / Pilot Revenue", total: revenueTotals.pilot },
     { name: "Financial Revenue", total: revenueTotals.financial },
     { name: "Immo", total: revenueTotals.immo },
   ];
 
   const expenseBreakdown: SectionTotal[] = [
-    { name: "Pilot Expense", total: expenseTotals.pilot },
+    { name: "Salary deductions / Pilot Expenses", total: expenseTotals.pilot },
     { name: "Loan", total: expenseTotals.loans },
     { name: "Everyday Expenses", total: expenseTotals.everyday },
     { name: "Home Charges", total: expenseTotals.home },
@@ -263,19 +272,19 @@ export function JournalPageContent() {
           </p>
         )}
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-900/50 p-4 backdrop-blur">
-          <div className="mx-auto flex w-full max-w-3xl flex-col items-stretch gap-4 sm:flex-row sm:items-stretch sm:justify-center sm:gap-5">
+        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-900/50 p-4 backdrop-blur">
+          <div className="mx-auto flex w-full max-w-3xl flex-col items-stretch gap-3 sm:flex-row sm:items-stretch sm:justify-center sm:gap-4">
             <button
               type="button"
               onClick={goPrevMonth}
-              className="group inline-flex min-h-[132px] flex-1 flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.14] bg-white/[0.04] px-4 py-4 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-white/[0.08] hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:max-w-[160px] sm:flex-none sm:min-w-[132px]"
+              className="group inline-flex min-h-[100px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-white/[0.14] bg-white/[0.04] px-3 py-2.5 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-white/[0.08] hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:max-w-[140px] sm:flex-none sm:min-w-[100px]"
             >
               <ChevronLeft
-                className="h-8 w-8 shrink-0 text-slate-300 transition group-hover:-translate-x-0.5 group-hover:text-cyan-200"
+                className="h-6 w-6 shrink-0 text-slate-300 transition group-hover:-translate-x-0.5 group-hover:text-cyan-200"
                 strokeWidth={1.75}
                 aria-hidden
               />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-400">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-400">
                 Previous
               </span>
             </button>
@@ -290,14 +299,14 @@ export function JournalPageContent() {
               type="button"
               onClick={goNextMonth}
               disabled={monthKey >= monthKeyFromDate(new Date())}
-              className="group inline-flex min-h-[132px] flex-1 flex-col items-center justify-center gap-1.5 rounded-2xl border border-white/[0.14] bg-white/[0.04] px-4 py-4 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-white/[0.08] hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.02] disabled:text-slate-600 disabled:shadow-none sm:max-w-[160px] sm:flex-none sm:min-w-[132px]"
+              className="group inline-flex min-h-[100px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-white/[0.14] bg-white/[0.04] px-3 py-2.5 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-white/[0.08] hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.02] disabled:text-slate-600 disabled:shadow-none sm:max-w-[140px] sm:flex-none sm:min-w-[100px]"
             >
               <ChevronRight
-                className="h-8 w-8 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-cyan-200 disabled:group-hover:translate-x-0"
+                className="h-6 w-6 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-cyan-200 disabled:group-hover:translate-x-0"
                 strokeWidth={1.75}
                 aria-hidden
               />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-400">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-400">
                 Next
               </span>
             </button>
@@ -319,19 +328,22 @@ export function JournalPageContent() {
                 <Archive className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={1.5} aria-hidden />
                 Archive
               </p>
-              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                {savedSummaries.map((row) => (
-                  <ArchiveMonthCard
-                    key={`archive-${row.key}`}
-                    monthKey={row.key}
-                    revenue={row.revenue}
-                    expenses={row.expenses}
-                    surplus={row.surplus}
-                    isSelected={row.key === monthKey}
-                    onSelect={() => tryChangeMonth(row.key, dirty, setMonthKey)}
-                    onDelete={() => handleDeleteSavedMonth(row.key)}
-                  />
-                ))}
+              <div className="-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-color:rgba(45,212,191,0.35)_rgba(15,23,42,0.75)] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-800/60 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-500/35 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-400/50">
+                <div className="flex w-max min-w-full gap-2 pr-1">
+                  {savedSummaries.map((row) => (
+                    <div key={`archive-${row.key}`} className="w-[158px] shrink-0 sm:w-[168px]">
+                      <ArchiveMonthCard
+                        monthKey={row.key}
+                        revenue={row.revenue}
+                        expenses={row.expenses}
+                        surplus={row.surplus}
+                        isSelected={row.key === monthKey}
+                        onSelect={() => tryChangeMonth(row.key, dirty, setMonthKey)}
+                        onDelete={() => handleDeleteSavedMonth(row.key)}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -374,8 +386,8 @@ export function JournalPageContent() {
             Revenue
           </h2>
           <FinanceSection
-            title="Pilot Revenue"
-            subtitle="Fixed structure with editable values"
+            title="Salary"
+            subtitle="Add and manage salary items"
             sectionIcon={
               <IconBox>
                 <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
@@ -386,6 +398,14 @@ export function JournalPageContent() {
             onAmountChange={(id, value) =>
               setSnap((s) => ({ ...s, pilotRevenue: updateItemAmount(s.pilotRevenue, id, value) }))
             }
+            onLabelChange={(id, label) =>
+              setSnap((s) => ({ ...s, pilotRevenue: updateItemLabel(s.pilotRevenue, id, label) }))
+            }
+            onDeleteItem={(id) => setSnap((s) => ({ ...s, pilotRevenue: deleteItem(s.pilotRevenue, id) }))}
+            onAddItem={(label, amount) =>
+              setSnap((s) => ({ ...s, pilotRevenue: addItem(s.pilotRevenue, label, amount) }))
+            }
+            addButtonLabel="Add Salary item"
           />
           <FinanceSection
             title="Financial Revenue"
@@ -435,8 +455,8 @@ export function JournalPageContent() {
             Expenses
           </h2>
           <FinanceSection
-            title="Pilot Expense"
-            subtitle="Fixed structure with editable values"
+            title="Salary deductions"
+            subtitle="Add and manage salary deductions"
             sectionIcon={
               <IconBox>
                 <ArrowDownRight className="h-4 w-4" strokeWidth={1.5} />
@@ -447,6 +467,14 @@ export function JournalPageContent() {
             onAmountChange={(id, value) =>
               setSnap((s) => ({ ...s, pilotExpense: updateItemAmount(s.pilotExpense, id, value) }))
             }
+            onLabelChange={(id, label) =>
+              setSnap((s) => ({ ...s, pilotExpense: updateItemLabel(s.pilotExpense, id, label) }))
+            }
+            onDeleteItem={(id) => setSnap((s) => ({ ...s, pilotExpense: deleteItem(s.pilotExpense, id) }))}
+            onAddItem={(label, amount) =>
+              setSnap((s) => ({ ...s, pilotExpense: addItem(s.pilotExpense, label, amount) }))
+            }
+            addButtonLabel="Add deduction"
           />
           <FinanceSection
             title="Loan"
@@ -490,7 +518,7 @@ export function JournalPageContent() {
           />
           <FinanceSection
             title="Home Charges"
-            subtitle="Fixed household costs with editable amount"
+            subtitle="Add and manage household charges"
             sectionIcon={
               <IconBox>
                 <Home className="h-4 w-4" strokeWidth={1.5} />
@@ -501,6 +529,14 @@ export function JournalPageContent() {
             onAmountChange={(id, value) =>
               setSnap((s) => ({ ...s, homeCharges: updateItemAmount(s.homeCharges, id, value) }))
             }
+            onLabelChange={(id, label) =>
+              setSnap((s) => ({ ...s, homeCharges: updateItemLabel(s.homeCharges, id, label) }))
+            }
+            onDeleteItem={(id) => setSnap((s) => ({ ...s, homeCharges: deleteItem(s.homeCharges, id) }))}
+            onAddItem={(label, amount) =>
+              setSnap((s) => ({ ...s, homeCharges: addItem(s.homeCharges, label, amount) }))
+            }
+            addButtonLabel="Add Home charge"
           />
           <FinanceSection
             title="Investments"

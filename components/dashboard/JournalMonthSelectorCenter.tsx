@@ -52,18 +52,18 @@ export function JournalMonthSelectorCenter({
       onClick={onOpenPicker}
       aria-haspopup="dialog"
       aria-expanded={pickerOpen}
-      className="group relative mx-auto flex w-full max-w-[280px] cursor-pointer flex-col items-center gap-2 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-6 py-5 text-center shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl transition duration-200 ease-out hover:border-cyan-400/35 hover:bg-white/[0.1] hover:shadow-[0_12px_40px_rgba(34,211,238,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+      className="group relative mx-auto flex w-full max-w-[260px] cursor-pointer flex-col items-center gap-1.5 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-5 py-3.5 text-center shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl transition duration-200 ease-out hover:border-cyan-400/35 hover:bg-white/[0.1] hover:shadow-[0_12px_40px_rgba(34,211,238,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
     >
       <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-400">
         Select month
       </span>
-      <div className="flex items-center gap-2 text-cyan-200/90">
-        <CalendarDays className="h-6 w-6 shrink-0 transition group-hover:scale-105" strokeWidth={1.5} aria-hidden />
-        <ChevronDown className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} aria-hidden />
+      <div className="flex items-center gap-1.5 text-cyan-200/90">
+        <CalendarDays className="h-5 w-5 shrink-0 transition group-hover:scale-105" strokeWidth={1.5} aria-hidden />
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-70" strokeWidth={2} aria-hidden />
       </div>
-      <div className="min-h-[3.25rem]">
-        <span className="block text-xl font-semibold tracking-tight text-white sm:text-2xl">{month}</span>
-        <span className="block text-sm font-medium text-slate-400">{year}</span>
+      <div className="min-h-[2.5rem]">
+        <span className="block text-lg font-semibold tracking-tight text-white sm:text-xl">{month}</span>
+        <span className="block text-xs font-medium text-slate-400 sm:text-sm">{year}</span>
       </div>
       {badge}
     </button>

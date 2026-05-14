@@ -17,7 +17,6 @@ export type JournalOverviewMetrics = {
 export type JournalDerivedHealth = {
   liquidityScore: number;
   debtToIncome: number;
-  emergencyMonths: number;
 };
 
 export type CashflowMonthPoint = {
@@ -63,10 +62,6 @@ export function computeJournalDerivedHealth(
 ): JournalDerivedHealth {
   const debtToIncome =
     metrics.monthlyRevenue > 0 ? metrics.totalDebts / metrics.monthlyRevenue : 0;
-  const emergencyMonths =
-    metrics.monthlyExpenses > 0 && metrics.surplus > 0
-      ? Math.round((metrics.surplus / metrics.monthlyExpenses) * 10) / 10
-      : 0;
   const liquidityScore = Math.max(
     0,
     Math.min(
@@ -74,7 +69,7 @@ export function computeJournalDerivedHealth(
       Math.round(38 + metrics.savingsRate * 0.85 + (metrics.surplus >= 0 ? 18 : -12)),
     ),
   );
-  return { liquidityScore, debtToIncome, emergencyMonths };
+  return { liquidityScore, debtToIncome };
 }
 
 /** Short label for chart axis, e.g. Jan '26 */
