@@ -158,18 +158,18 @@ export function OverviewPageContent() {
     : "This month (sample)";
 
   const healthSubtitle = hasJournalData
-    ? "Derived from your latest saved Journal month"
+    ? "Derived from your latest saved month in Budget"
     : "Quick signals (sample)";
 
   const cashflowCardSubtitle = cashflowIsSample
-    ? "Sample monthly trend — save Journal months to see your data"
-    : "All saved Journal months · AED";
+    ? "Sample monthly trend — save months in Budget to see your data"
+    : "All saved months · AED";
 
   return (
     <div className="space-y-8">
       {!hasJournalData && mounted && (
         <p className="rounded-lg border border-amber-300/20 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-100/95">
-          No journal data saved yet. Showing sample overview.
+          No budget data saved yet. Showing sample overview.
         </p>
       )}
 
@@ -181,8 +181,8 @@ export function OverviewPageContent() {
           <h1 className="text-3xl font-semibold tracking-tight text-white">Overview</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-400">
             {hasJournalData && latestMonthKey
-              ? `Figures reflect your most recent saved Journal month (${formatMonthLabel(latestMonthKey)}). Health signals are derived from that snapshot.`
-              : "Monthly snapshot and financial health at a glance. Save a month in Journal to replace sample figures."}
+              ? `Figures reflect your most recent month saved in Budget (${formatMonthLabel(latestMonthKey)}). Health signals are derived from that snapshot.`
+              : "Monthly snapshot and financial health at a glance. Save a month in Budget to replace sample figures."}
           </p>
         </div>
       </header>
@@ -194,7 +194,7 @@ export function OverviewPageContent() {
           label="Monthly surplus / deficit"
           value={surplus}
           tone={surplus >= 0 ? "positive" : "negative"}
-          helper={surplus >= 0 ? "Cash-positive month" : "Review spending in Journal"}
+          helper={surplus >= 0 ? "Cash-positive month" : "Review spending in Budget"}
           icon={Scale}
         />
         <SummaryCard

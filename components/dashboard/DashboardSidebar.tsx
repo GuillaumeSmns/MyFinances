@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DASHBOARD_NAV_ITEMS } from "@/components/dashboard/dashboard-nav";
+import { DashboardLogoutButton } from "@/components/dashboard/DashboardLogoutButton";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-white/10 bg-slate-900/60 p-6 lg:block">
-      <Link href="/dashboard/overview" className="group block">
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-slate-900/60 p-6 lg:flex">
+      <Link href="/dashboard/overview" className="group block shrink-0">
         <p className="text-xl font-semibold text-white transition group-hover:text-cyan-200">MyFinances</p>
         <p className="mt-1 text-sm text-slate-400">Finance Dashboard</p>
       </Link>
-      <nav className="mt-8 space-y-1.5 text-sm" aria-label="Dashboard">
+      <nav className="mt-8 min-h-0 flex-1 space-y-1.5 overflow-y-auto text-sm" aria-label="Dashboard">
         {DASHBOARD_NAV_ITEMS.map(({ href, label, Icon }) => {
           const active =
             pathname === href || (href === "/dashboard/overview" && pathname === "/dashboard");
@@ -39,6 +40,9 @@ export function DashboardSidebar() {
           );
         })}
       </nav>
+      <div className="mt-6 shrink-0 border-t border-white/10 pt-6">
+        <DashboardLogoutButton variant="sidebar" />
+      </div>
     </aside>
   );
 }

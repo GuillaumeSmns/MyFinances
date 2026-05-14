@@ -9,6 +9,7 @@ import {
   createJournalSnapshotForNewMonth,
   deleteJournalMonth,
   formatMonthLabel,
+  getDefaultJournalSnapshot,
   listSavedMonthKeys,
   listSavedMonthKeysChronological,
   loadJournalMonth,
@@ -75,17 +76,13 @@ function tryChangeMonth(
 
 export function JournalPageContent() {
   const [monthKey, setMonthKey] = useState(() => monthKeyFromDate(new Date()));
-  const [snap, setSnap] = useState<JournalMonthSnapshot>(() => {
-    const k = monthKeyFromDate(new Date());
-    return loadJournalMonth(k) ?? createJournalSnapshotForNewMonth(k);
-  });
-  const [lastPersistedSerialized, setLastPersistedSerialized] = useState(() => {
-    const k = monthKeyFromDate(new Date());
-    const fromDisk = loadJournalMonth(k);
-    const initial = fromDisk ?? createJournalSnapshotForNewMonth(k);
-    return fromDisk ? JSON.stringify(fromDisk) : JSON.stringify(initial);
-  });
-  const [hasSavedCopyOnDisk, setHasSavedCopyOnDisk] = useState(() => !!loadJournalMonth(monthKeyFromDate(new Date())));
+  const [snap, setSnap] = useState<JournalMonthSnapshot>(() => getDefaultJournalSnapshot());
+  const [lastPersistedSerialized, setLastPersistedSerialized] = useState(
+    () => JSON.stringify(getDefaultJournalSnapshot()),
+  );
+  const [hasSavedCopyOnDisk, setHasSavedCopyOnDisk] = useState(false);
+  /** After first client read of localStorage for this monthKey; avoids SSR vs client markup drift. */
+  const [localStorageHydrated, setLocalStorageHydrated] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [storageRevision, setStorageRevision] = useState(0);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -97,6 +94,7 @@ export function JournalPageContent() {
       setSnap(initial);
       setLastPersistedSerialized(fromDisk ? JSON.stringify(fromDisk) : JSON.stringify(initial));
       setHasSavedCopyOnDisk(!!fromDisk);
+      setLocalStorageHydrated(true);
     });
   }, [monthKey]);
 
@@ -147,6 +145,7 @@ export function JournalPageContent() {
   ];
 
   const savedSummaries = useMemo(() => {
+    if (!localStorageHydrated) return [];
     void storageRevision;
     return listSavedMonthKeysChronological()
       .map((key) => {
@@ -161,14 +160,14 @@ export function JournalPageContent() {
         };
       })
       .filter((row): row is { key: string; revenue: number; expenses: number; surplus: number } => row !== null);
-  }, [storageRevision]);
+  }, [storageRevision, localStorageHydrated]);
 
   const handleSave = useCallback(() => {
     saveJournalMonth(monthKey, snap);
     setLastPersistedSerialized(JSON.stringify(snap));
     setHasSavedCopyOnDisk(true);
     setStorageRevision((r) => r + 1);
-    setSaveMessage("Journal saved for " + formatMonthLabel(monthKey));
+    setSaveMessage("Budget saved for " + formatMonthLabel(monthKey));
     window.setTimeout(() => setSaveMessage(null), 3500);
   }, [monthKey, snap]);
 
@@ -226,9 +225,10 @@ export function JournalPageContent() {
               <NotebookPen className="h-5 w-5" strokeWidth={1.5} />
             </IconBox>
             <div>
-              <h1 className="text-3xl font-semibold text-white">Journal</h1>
+              <h1 className="text-3xl font-semibold text-white">Budget</h1>
               <p className="mt-1 text-sm text-slate-400">
-                Monthly finance recording. Data is stored locally in your browser until a backend is connected.
+                Monthly budget and finance recording. Data is stored locally in your browser until a backend is
+                connected.
               </p>
             </div>
           </div>

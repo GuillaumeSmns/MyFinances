@@ -1,5 +1,6 @@
-import { JournalPageContent } from "@/components/dashboard/JournalPageContent";
+import { redirect } from "next/navigation";
 
-export default function JournalPage() {
-  return <JournalPageContent />;
+/** @deprecated Use /dashboard/budget */
+export default function JournalRedirectPage() {
+  redirect("/dashboard/budget");
 }

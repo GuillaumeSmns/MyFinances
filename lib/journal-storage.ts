@@ -14,8 +14,6 @@ export type JournalMonthSnapshot = {
   savedAt?: string;
 };
 
-const makeId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
 export function monthKeyFromDate(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -50,26 +48,26 @@ export function getDefaultJournalSnapshot(): JournalMonthSnapshot {
       { id: "rev-other", label: "Other", amount: 300 },
     ],
     financialRevenue: [
-      { id: makeId(), label: "Dividends", amount: 260 },
-      { id: makeId(), label: "Side income", amount: 420 },
+      { id: "default-fin-dividends", label: "Dividends", amount: 260 },
+      { id: "default-fin-side-income", label: "Side income", amount: 420 },
     ],
-    immoRevenue: [{ id: makeId(), label: "Apartment rent", amount: 950 }],
+    immoRevenue: [{ id: "default-immo-rent", label: "Apartment rent", amount: 950 }],
     pilotExpense: [
       { id: "exp-provident", label: "Provident fund deductions", amount: 700 },
       { id: "exp-staff-travel", label: "Staff travel", amount: 180 },
       { id: "exp-pilot-other", label: "Other", amount: 120 },
     ],
-    loanExpense: [{ id: makeId(), label: "Car loan", amount: 480 }],
+    loanExpense: [{ id: "default-loan-car", label: "Car loan", amount: 480 }],
     everydayExpense: [
-      { id: makeId(), label: "Groceries", amount: 530 },
-      { id: makeId(), label: "Dining", amount: 220 },
+      { id: "default-everyday-groceries", label: "Groceries", amount: 530 },
+      { id: "default-everyday-dining", label: "Dining", amount: 220 },
     ],
     homeCharges: [
       { id: "home-dewa", label: "DEWA", amount: 260 },
       { id: "home-service-fees", label: "Service fees", amount: 340 },
       { id: "home-other", label: "Other", amount: 90 },
     ],
-    investments: [{ id: makeId(), label: "ETF monthly contribution", amount: 400 }],
+    investments: [{ id: "default-investment-etf", label: "ETF monthly contribution", amount: 400 }],
   };
 }
 
