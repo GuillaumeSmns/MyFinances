@@ -2,24 +2,48 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AuthFormCard } from "@/components/auth/AuthFormCard";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
-import { hasMockAuthCookie, setMockAuthCookie } from "@/lib/mock-auth-cookie";
+import { createClient } from "@/utils/supabase/client";
 
 export function LoginForm() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (hasMockAuthCookie()) {
-      router.replace("/dashboard/overview");
-    }
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        router.replace("/dashboard/overview");
+      }
+    });
   }, [router]);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      setMockAuthCookie();
+      setError(null);
+      setLoading(true);
+      const form = e.currentTarget;
+      const fd = new FormData(form);
+      const email = String(fd.get("email") ?? "").trim();
+      const password = String(fd.get("password") ?? "");
+
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      setLoading(false);
+
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
       router.push("/dashboard/overview");
       router.refresh();
     },
@@ -72,11 +96,18 @@ export function LoginForm() {
             />
           </div>
 
+          {error && (
+            <p className="rounded-lg border border-amber-400/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-100" role="alert">
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-cyan-400 to-violet-400 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95"
+            disabled={loading}
+            className="w-full rounded-xl bg-gradient-to-r from-cyan-400 to-violet-400 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Log in
+            {loading ? "Signing in…" : "Log in"}
           </button>
         </form>
 

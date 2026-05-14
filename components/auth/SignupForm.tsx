@@ -5,22 +5,28 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AuthFormCard } from "@/components/auth/AuthFormCard";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
-import { hasMockAuthCookie, setMockAuthCookie } from "@/lib/mock-auth-cookie";
+import { createClient } from "@/utils/supabase/client";
 
 export function SignupForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (hasMockAuthCookie()) {
-      router.replace("/dashboard/overview");
-    }
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        router.replace("/dashboard/overview");
+      }
+    });
   }, [router]);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setError(null);
+      setInfo(null);
       const form = e.currentTarget;
       const fd = new FormData(form);
       const password = String(fd.get("password") ?? "");
@@ -29,9 +35,33 @@ export function SignupForm() {
         setError("Passwords do not match.");
         return;
       }
-      setMockAuthCookie();
-      router.push("/dashboard/overview");
-      router.refresh();
+
+      const email = String(fd.get("email") ?? "").trim();
+      const name = String(fd.get("name") ?? "").trim();
+
+      setLoading(true);
+      const supabase = createClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name },
+        },
+      });
+      setLoading(false);
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      if (data.session) {
+        router.push("/dashboard/overview");
+        router.refresh();
+        return;
+      }
+
+      setInfo("Check your email to confirm your account before signing in.");
     },
     [router],
   );
@@ -111,11 +141,18 @@ export function SignupForm() {
             </p>
           )}
 
+          {info && (
+            <p className="rounded-lg border border-cyan-400/25 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-50" role="status">
+              {info}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-cyan-400 to-violet-400 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95"
+            disabled={loading}
+            className="w-full rounded-xl bg-gradient-to-r from-cyan-400 to-violet-400 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Create account
+            {loading ? "Creating account…" : "Create account"}
           </button>
         </form>
 

@@ -2,7 +2,8 @@
 
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { clearMockAuthCookie } from "@/lib/mock-auth-cookie";
+import { useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 type DashboardLogoutButtonProps = {
   /** Tighter styling for the horizontal mobile bar */
@@ -11,6 +12,7 @@ type DashboardLogoutButtonProps = {
 
 export function DashboardLogoutButton({ variant = "sidebar" }: DashboardLogoutButtonProps) {
   const router = useRouter();
+  const [busy, setBusy] = useState(false);
 
   const base =
     variant === "sidebar"
@@ -20,10 +22,15 @@ export function DashboardLogoutButton({ variant = "sidebar" }: DashboardLogoutBu
   return (
     <button
       type="button"
+      disabled={busy}
+      aria-busy={busy}
       className={base}
-      onClick={() => {
-        clearMockAuthCookie();
-        router.push("/");
+      onClick={async () => {
+        setBusy(true);
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        setBusy(false);
+        router.replace("/");
         router.refresh();
       }}
     >
