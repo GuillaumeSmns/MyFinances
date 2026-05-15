@@ -257,7 +257,7 @@ export function JournalPageContent() {
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+              className="mf-btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition hover:opacity-90"
             >
               <Save className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
               Save
@@ -328,7 +328,7 @@ export function JournalPageContent() {
                 <Archive className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={1.5} aria-hidden />
                 Archive
               </p>
-              <div className="-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-color:rgba(45,212,191,0.35)_rgba(15,23,42,0.75)] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-800/60 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-500/35 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-400/50">
+              <div className="-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-color:color-mix(in_srgb,var(--mf-accent)_35%,transparent)_var(--mf-surface-card)] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-800/60 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-500/35 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-400/50">
                 <div className="flex w-max min-w-full gap-2 pr-1">
                   {savedSummaries.map((row) => (
                     <div key={`archive-${row.key}`} className="w-[158px] shrink-0 sm:w-[168px]">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroFinanceVisual } from "@/components/landing/HeroFinanceVisual";
 
 type Feature = {
   title: string;
@@ -151,7 +152,7 @@ function DashboardMockup() {
             {spendingTrend.map((point) => (
               <div key={point.month} className="group relative flex h-full flex-1 items-end">
                 <div
-                  className="w-full rounded-t-md bg-gradient-to-t from-cyan-500/75 to-violet-400/90 shadow-[0_0_18px_rgba(56,189,248,0.25)]"
+                  className="mf-chart-bar w-full rounded-t-md"
                   style={{ height: `${Math.round((point.amount / maxAmount) * 100)}%` }}
                 />
                 <span className="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 rounded-md border border-white/10 bg-slate-900/95 px-2 py-1 text-[10px] text-slate-200 group-hover:block">
@@ -214,7 +215,7 @@ export default function Home() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:opacity-90"
+            className="mf-btn-primary rounded-full px-4 py-2 text-sm font-medium transition hover:opacity-90"
           >
             Sign Up
           </Link>
@@ -224,6 +225,7 @@ export default function Home() {
       <main className="mx-auto w-full max-w-6xl px-6 pb-16 lg:px-8">
         <section className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:py-20">
           <div>
+            <HeroFinanceVisual className="mb-4 sm:mb-5" />
             <p className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-400/10 px-4 py-1 text-xs tracking-[0.18em] text-cyan-200">
               PREMIUM PERSONAL FINANCE
             </p>
@@ -237,7 +239,7 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/signup"
-                className="rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.01] hover:opacity-95"
+                className="mf-btn-primary rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.01] hover:opacity-95"
               >
                 Get Started
               </Link>

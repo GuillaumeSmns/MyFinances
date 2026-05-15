@@ -1,8 +1,16 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useSyncExternalStore } from "react";
 import {
-  applyThemeToDocument,
+  createContext,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
+import {
+  persistThemeClient,
+  readStoredTheme,
   THEME_STORAGE_KEY,
   type MfTheme,
 } from "@/lib/theme-storage";
@@ -17,10 +25,6 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 function getThemeSnapshot(): MfTheme {
   if (typeof document === "undefined") return "dark";
   return document.documentElement.getAttribute("data-mf-theme") === "light" ? "light" : "dark";
-}
-
-function getServerThemeSnapshot(): MfTheme {
-  return "dark";
 }
 
 function subscribeToTheme(onStoreChange: () => void) {
@@ -38,16 +42,26 @@ function subscribeToTheme(onStoreChange: () => void) {
   };
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useSyncExternalStore(subscribeToTheme, getThemeSnapshot, getServerThemeSnapshot);
+type ThemeProviderProps = {
+  children: React.ReactNode;
+  /** Theme from the server cookie — used for SSR and hydration. */
+  initialTheme: MfTheme;
+};
+
+export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
+  const theme = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    () => initialTheme,
+  );
+
+  useLayoutEffect(() => {
+    const resolved = readStoredTheme(initialTheme);
+    persistThemeClient(resolved);
+  }, [initialTheme]);
 
   const setTheme = useCallback((next: MfTheme) => {
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      /* ignore quota / private mode */
-    }
-    applyThemeToDocument(next);
+    persistThemeClient(next);
   }, []);
 
   const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);

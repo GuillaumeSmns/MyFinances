@@ -52,7 +52,7 @@ export function JournalMonthSelectorCenter({
       onClick={onOpenPicker}
       aria-haspopup="dialog"
       aria-expanded={pickerOpen}
-      className="group relative mx-auto flex w-full max-w-[260px] cursor-pointer flex-col items-center gap-1.5 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-5 py-3.5 text-center shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl transition duration-200 ease-out hover:border-cyan-400/35 hover:bg-white/[0.1] hover:shadow-[0_12px_40px_rgba(34,211,238,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 mf-light:border-slate-200 mf-light:bg-white mf-light:shadow-md mf-light:hover:border-cyan-400/50 mf-light:focus-visible:ring-offset-slate-100"
+      className="group relative mx-auto flex w-full max-w-[260px] cursor-pointer flex-col items-center gap-1.5 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-5 py-3.5 text-center shadow-[0_8px_32px_rgba(12,10,8,0.4)] backdrop-blur-xl transition duration-200 ease-out hover:border-cyan-400/35 hover:bg-white/[0.1] hover:shadow-mf-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 mf-light:border-slate-200 mf-light:bg-white mf-light:shadow-md mf-light:hover:border-cyan-400/50 mf-light:focus-visible:ring-offset-slate-100"
     >
       <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-400 mf-light:text-slate-500">
         Select month

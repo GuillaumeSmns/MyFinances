@@ -11,7 +11,7 @@ type DashboardCardProps = {
 export function DashboardCard({ title, subtitle, titleIcon, children, className = "" }: DashboardCardProps) {
   return (
     <section
-      className={`group rounded-2xl border border-white/10 bg-slate-900/60 p-5 shadow-[0_16px_40px_rgba(2,6,23,0.35)] backdrop-blur mf-light:border-slate-200/90 mf-light:bg-white mf-light:shadow-[0_12px_40px_rgba(15,23,42,0.08)] ${className}`}
+      className={`group mf-card-shadow rounded-2xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur mf-light:border-slate-200/90 mf-light:bg-white mf-light:shadow-[0_12px_40px_rgba(15,23,42,0.08)] ${className}`}
     >
       {(title || subtitle || titleIcon) && (
         <header className="mb-4 flex items-start gap-3">

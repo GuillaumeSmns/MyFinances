@@ -32,7 +32,7 @@ export function ArchiveMonthCard({
     <div
       className={`group relative min-h-[148px] rounded-lg border backdrop-blur-md transition mf-light:border-slate-200 mf-light:bg-white/80 ${
         isSelected
-          ? "border-cyan-400/45 bg-cyan-500/12 shadow-[0_0_0_1px_rgba(34,211,238,0.25)] mf-light:border-cyan-500/50 mf-light:bg-cyan-50"
+          ? "border-cyan-400/45 bg-cyan-500/12 shadow-mf-accent-ring mf-light:border-cyan-500/50 mf-light:bg-cyan-50"
           : "border-white/10 bg-white/[0.03] hover:border-white/18 hover:bg-white/[0.06] mf-light:hover:border-slate-300 mf-light:hover:bg-slate-50"
       }`}
     >

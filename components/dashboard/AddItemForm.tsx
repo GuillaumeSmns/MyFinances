@@ -44,7 +44,7 @@ export function AddItemForm({ onAddItem, buttonLabel = "Add Item" }: AddItemForm
       </div>
       <button
         type="submit"
-        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-400 to-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+        className="mf-btn-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition hover:opacity-90"
       >
         <Plus className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
         {buttonLabel}

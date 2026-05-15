@@ -146,7 +146,7 @@ function JournalMonthPickerModalContent({
           <button
             type="button"
             onClick={handleApply}
-            className="rounded-xl bg-gradient-to-r from-cyan-400 to-violet-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:opacity-90"
+            className="mf-btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
           >
             Apply
           </button>

@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DASHBOARD_NAV_ITEMS } from "@/components/dashboard/dashboard-nav";
+import { DASHBOARD_NAV_ITEMS, isNavItemActive } from "@/components/dashboard/dashboard-nav";
 import { DashboardLogoutButton } from "@/components/dashboard/DashboardLogoutButton";
+import { ProjectionsNavSection } from "@/components/dashboard/ProjectionsNavSection";
+
+const NAV_BEFORE_PROJECTIONS = DASHBOARD_NAV_ITEMS.slice(0, 3);
+const NAV_AFTER_PROJECTIONS = DASHBOARD_NAV_ITEMS.slice(3);
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -17,9 +21,34 @@ export function DashboardSidebar() {
         <p className="mt-1 text-sm text-slate-400 mf-light:text-slate-600">Finance Dashboard</p>
       </Link>
       <nav className="mt-8 min-h-0 flex-1 space-y-1.5 overflow-y-auto text-sm" aria-label="Dashboard">
-        {DASHBOARD_NAV_ITEMS.map(({ href, label, Icon }) => {
-          const active =
-            pathname === href || (href === "/dashboard/overview" && pathname === "/dashboard");
+        {NAV_BEFORE_PROJECTIONS.map(({ href, label, Icon }) => {
+          const active = isNavItemActive(pathname, href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`group flex items-center gap-3 rounded-lg border px-3 py-2.5 transition ${
+                active
+                  ? "border-cyan-300/40 bg-cyan-500/15 text-cyan-100 mf-light:border-cyan-400/50 mf-light:bg-cyan-500/10 mf-light:text-cyan-900"
+                  : "border-transparent text-slate-300 hover:border-cyan-300/30 hover:bg-cyan-500/10 hover:text-cyan-200 mf-light:text-slate-600 mf-light:hover:border-cyan-400/35 mf-light:hover:bg-cyan-500/5 mf-light:hover:text-cyan-800"
+              }`}
+            >
+              <Icon
+                className={`h-[18px] w-[18px] shrink-0 transition ${
+                  active
+                    ? "text-cyan-200 mf-light:text-cyan-700"
+                    : "text-slate-500 group-hover:text-cyan-200/90 mf-light:text-slate-500 mf-light:group-hover:text-cyan-700"
+                }`}
+                strokeWidth={1.5}
+                aria-hidden
+              />
+              {label}
+            </Link>
+          );
+        })}
+        <ProjectionsNavSection pathname={pathname} variant="sidebar" />
+        {NAV_AFTER_PROJECTIONS.map(({ href, label, Icon }) => {
+          const active = isNavItemActive(pathname, href);
           return (
             <Link
               key={href}

@@ -2,9 +2,170 @@
 
 @custom-variant mf-light (&:where([data-mf-theme="light"] *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Luxury palette (opt-in: data-mf-palette="luxury") ──────────────────── */
+html[data-mf-palette="luxury"] {
+  --mf-accent: #f4be7e;
+  --mf-accent-soft: #f7d4a8;
+  --mf-accent-muted: #d4a46a;
+  --mf-accent-deep: #8f6b3f;
+  --mf-champagne: #edd9be;
+  --mf-cream: #f5f0e8;
+  --mf-beige: #e8dfd2;
+  --mf-brown: #3d342c;
+
+  --mf-surface-base: #1a1714;
+  --mf-surface-elevated: #242018;
+  --mf-surface-card: #2d2822;
+  --mf-surface-input: #1f1c18;
+
+  --mf-text-primary: #f5f0e8;
+  --mf-text-secondary: #d4c9b8;
+  --mf-text-muted: #b5a99a;
+  --mf-text-faint: #8a8074;
+
+  --mf-border: rgba(244, 190, 126, 0.12);
+  --mf-border-strong: rgba(244, 190, 126, 0.22);
+  --mf-glow: rgba(244, 190, 126, 0.14);
+  --mf-shadow-card: 0 16px 40px rgba(12, 10, 8, 0.45);
+
+  /* Accent scale (Tailwind `cyan-*` remaps here) */
+  --mf-cyan-50: #faf6ef;
+  --mf-cyan-100: #f5ecdf;
+  --mf-cyan-200: #edd9be;
+  --mf-cyan-300: #e5c89e;
+  --mf-cyan-400: #f4be7e;
+  --mf-cyan-500: #d4a46a;
+  --mf-cyan-600: #b88952;
+  --mf-cyan-700: #8f6b3f;
+  --mf-cyan-800: #6b5030;
+  --mf-cyan-900: #4a3722;
+  --mf-cyan-950: #2d2418;
+
+  /* Gradient end / secondary glow (`violet-*`) */
+  --mf-violet-400: #c9a06a;
+  --mf-violet-500: #a88452;
+  --mf-violet-600: #8f6b3f;
+
+  /* Ambient blurs (`indigo-*`) */
+  --mf-indigo-500: #8b7355;
+
+  /* Warm charcoal neutrals (`slate-*`) */
+  --mf-slate-50: #faf6ef;
+  --mf-slate-100: #f5f0e8;
+  --mf-slate-200: #e8dfd2;
+  --mf-slate-300: #d4c9b8;
+  --mf-slate-400: #b5a99a;
+  --mf-slate-500: #8a8074;
+  --mf-slate-600: #5c5348;
+  --mf-slate-700: #3a342c;
+  --mf-slate-800: #2d2822;
+  --mf-slate-900: #242018;
+  --mf-slate-950: #1a1714;
+
+  /* Semantic finance (muted sage / dusty rose) */
+  --mf-emerald-300: #9cb8a8;
+  --mf-emerald-400: #8aa899;
+  --mf-emerald-500: #7a9889;
+  --mf-rose-300: #c9a0a0;
+  --mf-rose-400: #b89090;
+  --mf-rose-500: #a88080;
+
+  --mf-amber-100: #f5ecdf;
+  --mf-amber-300: #e5c89e;
+  --mf-amber-400: #d4a46a;
+  --mf-amber-500: #c49a5c;
+
+  --background: var(--mf-surface-base);
+  --foreground: var(--mf-text-primary);
+}
+
+/* Light mode — default (legacy) */
+html[data-mf-theme="light"] {
+  --background: var(--mf-slate-100);
+  --foreground: #0f172a;
+  --mf-text-primary: #0f172a;
+  --mf-text-muted: #64748b;
+}
+
+html[data-mf-theme="light"][data-mf-palette="luxury"] {
+  --background: var(--mf-cream);
+  --foreground: #2d2822;
+  --mf-text-primary: #2d2822;
+  --mf-text-muted: #5c5348;
+}
+
+/* ─── Legacy cyan palette (default) ──────────────────────────────────────── */
+:root,
+html[data-mf-palette="legacy"],
+html:not([data-mf-palette]) {
+  --mf-accent: #22d3ee;
+  --mf-accent-soft: #67e8f9;
+  --mf-accent-muted: #06b6d4;
+  --mf-accent-deep: #0e7490;
+  --mf-champagne: #a5f3fc;
+  --mf-cream: #f8fafc;
+  --mf-beige: #e2e8f0;
+  --mf-brown: #1e293b;
+
+  --mf-surface-base: #020617;
+  --mf-surface-elevated: #0f172a;
+  --mf-surface-card: #0f172a;
+  --mf-surface-input: #020617;
+
+  --mf-text-primary: #f1f5f9;
+  --mf-text-secondary: #cbd5e1;
+  --mf-text-muted: #94a3b8;
+  --mf-text-faint: #64748b;
+
+  --mf-border: rgba(255, 255, 255, 0.1);
+  --mf-border-strong: rgba(34, 211, 238, 0.35);
+  --mf-glow: rgba(34, 211, 238, 0.12);
+  --mf-shadow-card: 0 16px 40px rgba(2, 6, 23, 0.35);
+
+  --mf-cyan-50: #ecfeff;
+  --mf-cyan-100: #cffafe;
+  --mf-cyan-200: #a5f3fc;
+  --mf-cyan-300: #67e8f9;
+  --mf-cyan-400: #22d3ee;
+  --mf-cyan-500: #06b6d4;
+  --mf-cyan-600: #0891b2;
+  --mf-cyan-700: #0e7490;
+  --mf-cyan-800: #155e75;
+  --mf-cyan-900: #164e63;
+  --mf-cyan-950: #083344;
+
+  --mf-violet-400: #a78bfa;
+  --mf-violet-500: #8b5cf6;
+  --mf-violet-600: #7c3aed;
+
+  --mf-indigo-500: #6366f1;
+
+  --mf-slate-50: #f8fafc;
+  --mf-slate-100: #f1f5f9;
+  --mf-slate-200: #e2e8f0;
+  --mf-slate-300: #cbd5e1;
+  --mf-slate-400: #94a3b8;
+  --mf-slate-500: #64748b;
+  --mf-slate-600: #475569;
+  --mf-slate-700: #334155;
+  --mf-slate-800: #1e293b;
+  --mf-slate-900: #0f172a;
+  --mf-slate-950: #020617;
+
+  --mf-emerald-300: #6ee7b7;
+  --mf-emerald-400: #34d399;
+  --mf-emerald-500: #10b981;
+  --mf-rose-300: #fda4af;
+  --mf-rose-400: #fb7185;
+  --mf-rose-500: #f43f5e;
+
+  --mf-amber-100: #fef3c7;
+  --mf-amber-300: #fcd34d;
+  --mf-amber-400: #fbbf24;
+  --mf-amber-500: #f59e0b;
+
+  --background: var(--mf-slate-950);
+  --foreground: var(--mf-text-primary);
 }
 
 @theme inline {
@@ -12,19 +173,263 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Remap Tailwind scales → luxury tokens (existing class names unchanged) */
+  --color-cyan-50: var(--mf-cyan-50);
+  --color-cyan-100: var(--mf-cyan-100);
+  --color-cyan-200: var(--mf-cyan-200);
+  --color-cyan-300: var(--mf-cyan-300);
+  --color-cyan-400: var(--mf-cyan-400);
+  --color-cyan-500: var(--mf-cyan-500);
+  --color-cyan-600: var(--mf-cyan-600);
+  --color-cyan-700: var(--mf-cyan-700);
+  --color-cyan-800: var(--mf-cyan-800);
+  --color-cyan-900: var(--mf-cyan-900);
+  --color-cyan-950: var(--mf-cyan-950);
+
+  --color-violet-400: var(--mf-violet-400);
+  --color-violet-500: var(--mf-violet-500);
+  --color-violet-600: var(--mf-violet-600);
+
+  --color-indigo-500: var(--mf-indigo-500);
+
+  --color-slate-50: var(--mf-slate-50);
+  --color-slate-100: var(--mf-slate-100);
+  --color-slate-200: var(--mf-slate-200);
+  --color-slate-300: var(--mf-slate-300);
+  --color-slate-400: var(--mf-slate-400);
+  --color-slate-500: var(--mf-slate-500);
+  --color-slate-600: var(--mf-slate-600);
+  --color-slate-700: var(--mf-slate-700);
+  --color-slate-800: var(--mf-slate-800);
+  --color-slate-900: var(--mf-slate-900);
+  --color-slate-950: var(--mf-slate-950);
+
+  --color-emerald-300: var(--mf-emerald-300);
+  --color-emerald-400: var(--mf-emerald-400);
+  --color-emerald-500: var(--mf-emerald-500);
+  --color-rose-300: var(--mf-rose-300);
+  --color-rose-400: var(--mf-rose-400);
+  --color-rose-500: var(--mf-rose-500);
+
+  --color-amber-100: var(--mf-amber-100);
+  --color-amber-300: var(--mf-amber-300);
+  --color-amber-400: var(--mf-amber-400);
+  --color-amber-500: var(--mf-amber-500);
+
+  --shadow-mf-card: var(--mf-shadow-card);
+  --shadow-mf-accent: 0 12px 40px var(--mf-glow);
+  --shadow-mf-accent-ring: 0 0 0 1px color-mix(in srgb, var(--mf-accent) 28%, transparent);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Shared emphasis utilities (optional; charts use lib/theme-colors.ts) */
+.mf-card-shadow {
+  box-shadow: var(--mf-shadow-card);
+}
+
+.mf-accent-glow {
+  box-shadow: var(--shadow-mf-accent);
+}
+
+/* Primary actions only — accent #f4be7e (rest of UI keeps legacy palette) */
+.mf-btn-primary {
+  background-color: #f4be7e;
+  color: #0f172a;
+}
+
+.mf-btn-primary:hover:not(:disabled) {
+  background-color: #f7cf96;
+}
+
+.mf-btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.mf-chart-bar {
+  background: linear-gradient(to top, #d4a46a, #f4be7e);
+  box-shadow: 0 0 18px rgba(244, 190, 126, 0.22);
+}
+
+/* Landing hero holographic chart — borderless, integrates with page bg */
+.hero-fv-root {
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%),
+    linear-gradient(180deg, #000 0%, #000 82%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%),
+    linear-gradient(180deg, #000 0%, #000 82%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.hero-fv-perspective {
+  transform: perspective(820px) rotateX(16deg) rotateZ(-0.5deg);
+  transform-origin: 50% 88%;
+}
+
+.hero-fv-svg {
+  overflow: visible;
+}
+
+.mf-light .hero-fv-root {
+  opacity: 0.92;
+}
+
+.mf-light .hero-fv-bloom {
+  opacity: 0.65;
+}
+
+/* Landing hero finance chart visual — motion (disabled when user prefers reduced motion) */
+@keyframes hero-fv-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes hero-fv-bloom-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes hero-fv-bar-shimmer {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes hero-fv-platform-glow {
+  0%,
+  100% {
+    stroke-opacity: 0.28;
+  }
+  50% {
+    stroke-opacity: 0.45;
+  }
+}
+
+@keyframes hero-fv-trend-glow {
+  0%,
+  100% {
+    stroke-opacity: 0.85;
+  }
+  50% {
+    stroke-opacity: 1;
+  }
+}
+
+@keyframes hero-fv-area-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes hero-fv-shimmer-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes hero-fv-scanline {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.55;
+    transform: translateY(2px);
+  }
+}
+
+@keyframes hero-fv-node-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.hero-fv-float {
+  animation: hero-fv-float 8s ease-in-out infinite;
+}
+
+.hero-fv-bloom {
+  animation: hero-fv-bloom-pulse 6s ease-in-out infinite;
+}
+
+.hero-fv-macro-bar,
+.hero-fv-micro-bar {
+  animation: hero-fv-bar-shimmer 5s ease-in-out infinite;
+}
+
+.hero-fv-platform {
+  animation: hero-fv-platform-glow 6s ease-in-out infinite;
+}
+
+.hero-fv-trend {
+  animation: hero-fv-trend-glow 5.5s ease-in-out infinite;
+}
+
+.hero-fv-area {
+  animation: hero-fv-area-breathe 7s ease-in-out infinite;
+}
+
+.hero-fv-shimmer {
+  animation: hero-fv-shimmer-sweep 9s ease-in-out infinite;
+}
+
+.hero-fv-scanline {
+  animation: hero-fv-scanline 6s ease-in-out infinite;
+}
+
+.hero-fv-node {
+  animation: hero-fv-node-pulse 4.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fv-float,
+  .hero-fv-bloom,
+  .hero-fv-macro-bar,
+  .hero-fv-micro-bar,
+  .hero-fv-platform,
+  .hero-fv-trend,
+  .hero-fv-area,
+  .hero-fv-shimmer,
+  .hero-fv-scanline,
+  .hero-fv-node {
+    animation: none;
+  }
 }
 
 .no-spinner::-webkit-outer-spin-button,

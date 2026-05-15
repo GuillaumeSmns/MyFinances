@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { THEME_STORAGE_KEY } from "@/lib/theme-storage";
+import { parseThemeCookie, THEME_STORAGE_KEY } from "@/lib/theme-storage";
 import "./globals.css";
 
 const inter = Inter({
@@ -20,23 +21,23 @@ export const metadata: Metadata = {
   description: "Premium personal finance manager web app.",
 };
 
-const themeBlockingScript = `(function(){try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});document.documentElement.setAttribute("data-mf-theme",t==="light"?"light":"dark");}catch(e){document.documentElement.setAttribute("data-mf-theme","dark");}})();`;
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const initialTheme = parseThemeCookie(cookieStore.get(THEME_STORAGE_KEY)?.value);
+
   return (
     <html
       lang="en"
-      data-mf-theme="dark"
+      data-mf-theme={initialTheme}
       suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 mf-light:bg-slate-100 mf-light:text-slate-900">
-        <script dangerouslySetInnerHTML={{ __html: themeBlockingScript }} />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider initialTheme={initialTheme}>{children}</ThemeProvider>
       </body>
     </html>
   );
