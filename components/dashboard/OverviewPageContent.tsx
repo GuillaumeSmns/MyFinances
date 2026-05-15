@@ -178,8 +178,8 @@ export function OverviewPageContent() {
           <LayoutDashboard className="h-5 w-5" strokeWidth={1.5} />
         </IconBox>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white">Overview</h1>
-          <p className="mt-1 max-w-2xl text-sm text-slate-400">
+          <h1 className="text-3xl font-semibold tracking-tight text-white mf-light:text-slate-900">Overview</h1>
+          <p className="mt-1 max-w-2xl text-sm text-slate-400 mf-light:text-slate-600">
             {hasJournalData && latestMonthKey
               ? `Figures reflect your most recent month saved in Budget (${formatMonthLabel(latestMonthKey)}). Health signals are derived from that snapshot.`
               : "Monthly snapshot and financial health at a glance. Save a month in Budget to replace sample figures."}

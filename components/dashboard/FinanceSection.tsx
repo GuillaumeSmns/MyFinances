@@ -44,12 +44,12 @@ export function FinanceSection({
         ))}
       </div>
       {onAddItem && <AddItemForm onAddItem={onAddItem} buttonLabel={addButtonLabel} />}
-      <div className="mt-4 flex items-center justify-between rounded-xl border border-cyan-300/20 bg-cyan-500/10 px-3 py-2">
-        <span className="flex items-center gap-2 text-sm text-cyan-100">
-          <Coins className="h-3.5 w-3.5 shrink-0 text-cyan-300/90" strokeWidth={1.5} aria-hidden />
+      <div className="mt-4 flex items-center justify-between rounded-xl border border-cyan-300/20 bg-cyan-500/10 px-3 py-2 mf-light:border-cyan-400/30 mf-light:bg-cyan-50">
+        <span className="flex items-center gap-2 text-sm text-cyan-100 mf-light:text-cyan-900">
+          <Coins className="h-3.5 w-3.5 shrink-0 text-cyan-300/90 mf-light:text-cyan-700" strokeWidth={1.5} aria-hidden />
           Section total
         </span>
-        <span className="text-sm font-semibold text-cyan-200">AED {total.toLocaleString()}</span>
+        <span className="text-sm font-semibold text-cyan-200 mf-light:text-cyan-800">AED {total.toLocaleString()}</span>
       </div>
     </DashboardCard>
   );

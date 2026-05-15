@@ -51,7 +51,7 @@ function JournalMonthPickerModalContent({
     <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-4 pt-[12vh] sm:pt-[15vh]">
       <button
         type="button"
-        className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm"
+        className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm mf-light:bg-slate-900/50"
         aria-label="Close month picker"
         onClick={onClose}
       />
@@ -59,7 +59,7 @@ function JournalMonthPickerModalContent({
         role="dialog"
         aria-modal="true"
         aria-labelledby="journal-month-picker-title"
-        className="relative w-full max-w-md rounded-2xl border border-white/12 bg-slate-900/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+        className="relative w-full max-w-md rounded-2xl border border-white/12 bg-slate-900/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl mf-light:border-slate-200 mf-light:bg-white mf-light:shadow-xl"
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -67,16 +67,16 @@ function JournalMonthPickerModalContent({
               <CalendarRange className="h-5 w-5" strokeWidth={1.5} aria-hidden />
             </span>
             <div>
-              <h2 id="journal-month-picker-title" className="text-lg font-semibold text-white">
+              <h2 id="journal-month-picker-title" className="text-lg font-semibold text-white mf-light:text-slate-900">
                 Select month
               </h2>
-              <p className="text-xs text-slate-400">Choose any month up to the current period.</p>
+              <p className="text-xs text-slate-400 mf-light:text-slate-600">Choose any month up to the current period.</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-white/10 p-2 text-slate-400 transition hover:border-white/20 hover:bg-white/5 hover:text-white"
+            className="rounded-lg border border-white/10 p-2 text-slate-400 transition hover:border-white/20 hover:bg-white/5 hover:text-white mf-light:border-slate-200 mf-light:hover:bg-slate-100 mf-light:hover:text-slate-900"
             aria-label="Close"
           >
             <X className="h-4 w-4" strokeWidth={1.5} />
@@ -91,7 +91,7 @@ function JournalMonthPickerModalContent({
         </label>
         <div
           role="presentation"
-          className="group/month-field mb-2 cursor-pointer rounded-xl border border-white/25 bg-slate-950/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition hover:border-cyan-400/55 hover:bg-slate-950 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.12),inset_0_1px_0_rgba(255,255,255,0.06)] focus-within:border-cyan-400/60 focus-within:ring-2 focus-within:ring-cyan-400/35"
+          className="group/month-field mb-2 cursor-pointer rounded-xl border border-white/25 bg-slate-950/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition hover:border-cyan-400/55 hover:bg-slate-950 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.12),inset_0_1px_0_rgba(255,255,255,0.06)] focus-within:border-cyan-400/60 focus-within:ring-2 focus-within:ring-cyan-400/35 mf-light:border-slate-200 mf-light:bg-slate-50 mf-light:hover:bg-white"
         >
           <div className="flex min-h-[3.25rem] items-stretch">
             <div
@@ -109,10 +109,10 @@ function JournalMonthPickerModalContent({
                 value={draft}
                 max={maxMonthKey}
                 onChange={(e) => setDraft(e.target.value)}
-                className="w-full cursor-pointer border-0 bg-transparent p-0 text-base font-semibold text-white outline-none [color-scheme:dark] appearance-none placeholder:text-slate-500 [&::-webkit-calendar-picker-indicator]:hidden"
+                className="w-full cursor-pointer border-0 bg-transparent p-0 text-base font-semibold text-white outline-none [color-scheme:dark] appearance-none placeholder:text-slate-500 mf-light:text-slate-900 mf-light:[color-scheme:light] [&::-webkit-calendar-picker-indicator]:hidden"
               />
             </div>
-            <div className="flex shrink-0 flex-col items-center justify-center gap-0.5 border-l border-white/10 bg-slate-950/50 px-2 py-2 sm:px-3">
+            <div className="flex shrink-0 flex-col items-center justify-center gap-0.5 border-l border-white/10 bg-slate-950/50 px-2 py-2 sm:px-3 mf-light:border-slate-200 mf-light:bg-slate-100">
               <button
                 type="button"
                 aria-label="Open month picker"
@@ -133,13 +133,13 @@ function JournalMonthPickerModalContent({
             </div>
           </div>
         </div>
-        {draft && <p className="mb-6 text-sm text-slate-400">{formatMonthLabel(draft)}</p>}
+        {draft && <p className="mb-6 text-sm text-slate-400 mf-light:text-slate-600">{formatMonthLabel(draft)}</p>}
 
         <div className="flex flex-wrap justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-white/25 hover:bg-white/5"
+            className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-white/25 hover:bg-white/5 mf-light:border-slate-200 mf-light:text-slate-700 mf-light:hover:bg-slate-100"
           >
             Cancel
           </button>

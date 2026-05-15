@@ -18,8 +18,8 @@ export default function ProjectionsPage() {
           <TrendingUp className="h-5 w-5" strokeWidth={1.5} />
         </IconBox>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white">Projections</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-400">
+          <h1 className="text-3xl font-semibold tracking-tight text-white mf-light:text-slate-900">Projections</h1>
+          <p className="mt-2 max-w-2xl text-sm text-slate-400 mf-light:text-slate-600">
             Model future cash flow, savings growth, debt repayment, and investment scenarios. Scenario tools will
             live here.
           </p>
@@ -37,7 +37,7 @@ export default function ProjectionsPage() {
               </IconBox>
             }
           >
-            <p className="text-sm text-slate-400">Placeholder for calculators and charts.</p>
+            <p className="text-sm text-slate-400 mf-light:text-slate-600">Placeholder for calculators and charts.</p>
           </DashboardCard>
         ))}
       </div>

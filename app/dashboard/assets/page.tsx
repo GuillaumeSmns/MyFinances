@@ -18,8 +18,8 @@ export default function AssetsPage() {
           <Wallet className="h-5 w-5" strokeWidth={1.5} />
         </IconBox>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white">Assets</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-400">
+          <h1 className="text-3xl font-semibold tracking-tight text-white mf-light:text-slate-900">Assets</h1>
+          <p className="mt-2 max-w-2xl text-sm text-slate-400 mf-light:text-slate-600">
             Track real estate, investments, bank accounts, and other assets. This area will connect to your
             portfolio and accounts in a future release.
           </p>
@@ -37,7 +37,7 @@ export default function AssetsPage() {
               </IconBox>
             }
           >
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 mf-light:text-slate-600">
               Placeholder for balances, valuations, and linked documentation.
             </p>
           </DashboardCard>

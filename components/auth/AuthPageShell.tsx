@@ -7,7 +7,7 @@ type AuthPageShellProps = {
 
 export function AuthPageShell({ children }: AuthPageShellProps) {
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-slate-950 text-slate-100">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-slate-950 text-slate-100 mf-light:bg-slate-100 mf-light:text-slate-900">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-500/20 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
@@ -17,13 +17,13 @@ export function AuthPageShell({ children }: AuthPageShellProps) {
       <header className="mx-auto flex w-full max-w-md items-center justify-between px-6 py-6 sm:px-8">
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight text-white transition hover:text-cyan-200"
+          className="text-xl font-semibold tracking-tight text-white transition hover:text-cyan-200 mf-light:text-slate-900 mf-light:hover:text-cyan-700"
         >
           MyFinances
         </Link>
         <Link
           href="/"
-          className="text-sm text-slate-400 transition hover:text-cyan-200"
+          className="text-sm text-slate-400 transition hover:text-cyan-200 mf-light:text-slate-600 mf-light:hover:text-cyan-700"
         >
           Back to home
         </Link>

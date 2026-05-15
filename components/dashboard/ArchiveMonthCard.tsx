@@ -30,10 +30,10 @@ export function ArchiveMonthCard({
 
   return (
     <div
-      className={`group relative min-h-[148px] rounded-lg border backdrop-blur-md transition ${
+      className={`group relative min-h-[148px] rounded-lg border backdrop-blur-md transition mf-light:border-slate-200 mf-light:bg-white/80 ${
         isSelected
-          ? "border-cyan-400/45 bg-cyan-500/12 shadow-[0_0_0_1px_rgba(34,211,238,0.25)]"
-          : "border-white/10 bg-white/[0.03] hover:border-white/18 hover:bg-white/[0.06]"
+          ? "border-cyan-400/45 bg-cyan-500/12 shadow-[0_0_0_1px_rgba(34,211,238,0.25)] mf-light:border-cyan-500/50 mf-light:bg-cyan-50"
+          : "border-white/10 bg-white/[0.03] hover:border-white/18 hover:bg-white/[0.06] mf-light:hover:border-slate-300 mf-light:hover:bg-slate-50"
       }`}
     >
       <button
@@ -41,8 +41,8 @@ export function ArchiveMonthCard({
         onClick={onSelect}
         className="flex w-full min-h-[148px] flex-col rounded-lg px-3 pb-3 pt-3 pr-9 text-left"
       >
-        <div className="mb-3 flex items-start justify-between gap-2 border-b border-white/[0.08] pb-2">
-          <span className="text-xs font-semibold leading-snug text-white">{formatMonthLabel(monthKey)}</span>
+        <div className="mb-3 flex items-start justify-between gap-2 border-b border-white/[0.08] pb-2 mf-light:border-slate-200">
+          <span className="text-xs font-semibold leading-snug text-white mf-light:text-slate-900">{formatMonthLabel(monthKey)}</span>
           <span className="inline-flex shrink-0 items-center gap-0.5 rounded border border-emerald-400/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-200">
             <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden />
             Saved
@@ -75,7 +75,7 @@ export function ArchiveMonthCard({
           e.stopPropagation();
           onDelete();
         }}
-        className="absolute right-1.5 top-1.5 z-20 flex h-7 w-7 items-center justify-center rounded border border-white/10 bg-slate-950/90 text-sm leading-none text-slate-500 transition hover:border-rose-300/45 hover:bg-rose-500/15 hover:text-rose-200"
+        className="absolute right-1.5 top-1.5 z-20 flex h-7 w-7 items-center justify-center rounded border border-white/10 bg-slate-950/90 text-sm leading-none text-slate-500 transition hover:border-rose-300/45 hover:bg-rose-500/15 hover:text-rose-200 mf-light:border-slate-200 mf-light:bg-white mf-light:hover:border-rose-400/50 mf-light:hover:bg-rose-50"
       >
         ×
       </button>

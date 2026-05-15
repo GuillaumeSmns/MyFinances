@@ -54,13 +54,13 @@ export function LoginForm() {
     <AuthPageShell>
       <AuthFormCard>
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Welcome back</h1>
-          <p className="mt-2 text-sm text-slate-400">Sign in to open your MyFinances workspace.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-white mf-light:text-slate-900">Welcome back</h1>
+          <p className="mt-2 text-sm text-slate-400 mf-light:text-slate-600">Sign in to open your MyFinances workspace.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500 mf-light:text-slate-500">
               Email
             </label>
             <input
@@ -70,12 +70,12 @@ export function LoginForm() {
               autoComplete="email"
               required
               placeholder="you@example.com"
-              className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
+              className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
             />
           </div>
           <div>
             <div className="mb-1.5 flex items-center justify-between gap-2">
-              <label htmlFor="login-password" className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <label htmlFor="login-password" className="text-xs font-medium uppercase tracking-wide text-slate-500 mf-light:text-slate-500">
                 Password
               </label>
               <span
@@ -92,7 +92,7 @@ export function LoginForm() {
               autoComplete="current-password"
               required
               placeholder="••••••••"
-              className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
+              className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
             />
           </div>
 
@@ -111,9 +111,9 @@ export function LoginForm() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-slate-400">
+        <p className="mt-8 text-center text-sm text-slate-400 mf-light:text-slate-600">
           No account yet?{" "}
-          <Link href="/signup" className="font-medium text-cyan-300 hover:text-cyan-200">
+          <Link href="/signup" className="font-medium text-cyan-300 hover:text-cyan-200 mf-light:text-cyan-700 mf-light:hover:text-cyan-600">
             Create one
           </Link>
         </p>

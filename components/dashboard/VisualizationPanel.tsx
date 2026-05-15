@@ -57,11 +57,11 @@ export function VisualizationPanel({
       return (
         <div key={section.name} className="space-y-1">
           <div className="flex items-center justify-between gap-2 text-xs">
-            <span className="flex min-w-0 items-center gap-2 text-slate-300">
+            <span className="flex min-w-0 items-center gap-2 text-slate-300 mf-light:text-slate-700">
               <RowIcon className="h-3.5 w-3.5 shrink-0 text-slate-500" strokeWidth={1.5} aria-hidden />
               <span className="truncate">{section.name}</span>
             </span>
-            <span className="shrink-0 text-slate-400">AED {section.total.toLocaleString()}</span>
+            <span className="shrink-0 text-slate-400 mf-light:text-slate-600">AED {section.total.toLocaleString()}</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-white/10">
             <div className={`h-full rounded-full ${barClass}`} style={{ width: `${width}%` }} />
@@ -80,20 +80,20 @@ export function VisualizationPanel({
         </IconBox>
       }
     >
-      <div className="rounded-xl border border-white/10 bg-slate-950/50 p-4">
+      <div className="rounded-xl border border-white/10 bg-slate-950/50 p-4 mf-light:border-slate-200 mf-light:bg-slate-50">
         <div className="mb-2 flex items-center justify-between gap-2 text-sm">
-          <span className="flex items-center gap-2 text-slate-300">
+          <span className="flex items-center gap-2 text-slate-300 mf-light:text-slate-700">
             <ArrowUpRight className="h-4 w-4 shrink-0 text-emerald-400/90" strokeWidth={1.5} aria-hidden />
             Total Revenues
           </span>
-          <span className="text-emerald-300">AED {totalRevenue.toLocaleString()}</span>
+          <span className="text-emerald-300 mf-light:text-emerald-700">AED {totalRevenue.toLocaleString()}</span>
         </div>
         <div className="mb-2 flex items-center justify-between gap-2 text-sm">
-          <span className="flex items-center gap-2 text-slate-300">
+          <span className="flex items-center gap-2 text-slate-300 mf-light:text-slate-700">
             <ArrowDownRight className="h-4 w-4 shrink-0 text-rose-400/90" strokeWidth={1.5} aria-hidden />
             Total Expenses
           </span>
-          <span className="text-rose-300">AED {totalExpense.toLocaleString()}</span>
+          <span className="text-rose-300 mf-light:text-rose-700">AED {totalExpense.toLocaleString()}</span>
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-white/10">
           <div className="flex h-full">
@@ -103,8 +103,14 @@ export function VisualizationPanel({
         </div>
         <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
           <GitCompare className="h-4 w-4 shrink-0 text-slate-500" strokeWidth={1.5} aria-hidden />
-          <span className="text-slate-400">Difference: </span>
-          <span className={difference >= 0 ? "text-emerald-300" : "text-rose-300"}>
+          <span className="text-slate-400 mf-light:text-slate-600">Difference: </span>
+          <span
+            className={
+              difference >= 0
+                ? "text-emerald-300 mf-light:text-emerald-700"
+                : "text-rose-300 mf-light:text-rose-700"
+            }
+          >
             {difference >= 0 ? "Surplus" : "Deficit"} (AED {Math.abs(difference).toLocaleString()})
           </span>
         </p>
@@ -112,14 +118,14 @@ export function VisualizationPanel({
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         <div className="space-y-3">
-          <h4 className="flex items-center gap-2 text-sm font-medium text-white">
+          <h4 className="flex items-center gap-2 text-sm font-medium text-white mf-light:text-slate-900">
             <ListTree className="h-4 w-4 text-slate-500" strokeWidth={1.5} aria-hidden />
             Revenue Breakdown
           </h4>
           {renderBreakdown(revenueSections, totalRevenue, "bg-emerald-400/80", revenueRowIcon)}
         </div>
         <div className="space-y-3">
-          <h4 className="flex items-center gap-2 text-sm font-medium text-white">
+          <h4 className="flex items-center gap-2 text-sm font-medium text-white mf-light:text-slate-900">
             <ListTree className="h-4 w-4 text-slate-500" strokeWidth={1.5} aria-hidden />
             Expense Breakdown
           </h4>

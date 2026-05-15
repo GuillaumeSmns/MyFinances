@@ -16,8 +16,8 @@ export function DashboardLogoutButton({ variant = "sidebar" }: DashboardLogoutBu
 
   const base =
     variant === "sidebar"
-      ? "group flex w-full items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-left text-sm text-slate-300 transition hover:border-rose-300/25 hover:bg-rose-500/10 hover:text-rose-100"
-      : "flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-slate-900/80 px-3 py-2 text-xs font-medium text-slate-200 transition hover:border-rose-300/35 hover:bg-rose-500/10 hover:text-rose-100";
+      ? "group flex w-full items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-left text-sm text-slate-300 transition hover:border-rose-300/25 hover:bg-rose-500/10 hover:text-rose-100 mf-light:text-slate-600 mf-light:hover:border-rose-300/40 mf-light:hover:bg-rose-50 mf-light:hover:text-rose-800"
+      : "flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-slate-900/80 px-3 py-2 text-xs font-medium text-slate-200 transition hover:border-rose-300/35 hover:bg-rose-500/10 hover:text-rose-100 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-700 mf-light:hover:border-rose-300/50 mf-light:hover:bg-rose-50 mf-light:hover:text-rose-800";
 
   return (
     <button

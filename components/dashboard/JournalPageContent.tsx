@@ -225,8 +225,8 @@ export function JournalPageContent() {
               <NotebookPen className="h-5 w-5" strokeWidth={1.5} />
             </IconBox>
             <div>
-              <h1 className="text-3xl font-semibold text-white">Budget</h1>
-              <p className="mt-1 text-sm text-slate-400">
+              <h1 className="text-3xl font-semibold text-white mf-light:text-slate-900">Budget</h1>
+              <p className="mt-1 text-sm text-slate-400 mf-light:text-slate-600">
                 Monthly budget and finance recording. Data is stored locally in your browser until a backend is
                 connected.
               </p>
@@ -272,7 +272,7 @@ export function JournalPageContent() {
           </p>
         )}
 
-        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-900/50 p-4 backdrop-blur">
+        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-900/50 p-4 backdrop-blur mf-light:border-slate-200 mf-light:bg-white/90">
           <div className="mx-auto flex w-full max-w-3xl flex-col items-stretch gap-3 sm:flex-row sm:items-stretch sm:justify-center sm:gap-4">
             <button
               type="button"
@@ -381,7 +381,7 @@ export function JournalPageContent() {
 
       <section className="mb-6 grid gap-6 xl:grid-cols-2">
         <div className="space-y-6">
-          <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-white mf-light:text-slate-900">
             <ArrowUpRight className="h-5 w-5 shrink-0 text-emerald-400/90" strokeWidth={1.5} aria-hidden />
             Revenue
           </h2>
@@ -450,7 +450,7 @@ export function JournalPageContent() {
         </div>
 
         <div className="space-y-6">
-          <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-white mf-light:text-slate-900">
             <ArrowDownRight className="h-5 w-5 shrink-0 text-rose-400/90" strokeWidth={1.5} aria-hidden />
             Expenses
           </h2>

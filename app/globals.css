@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant mf-light (&:where([data-mf-theme="light"] *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
