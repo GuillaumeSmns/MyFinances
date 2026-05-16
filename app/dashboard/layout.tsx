@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { DashboardMobileNav } from "@/components/dashboard/DashboardMobileNav";
+import { DashboardProviders } from "@/components/dashboard/DashboardProviders";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { createClient } from "@/utils/supabase/server";
 
@@ -19,7 +20,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <DashboardSidebar />
         <div className="flex min-h-screen w-full min-w-0 flex-1 flex-col">
           <DashboardMobileNav />
-          <main className="w-full flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+          <main className="w-full flex-1 p-4 sm:p-6 lg:p-8">
+            <DashboardProviders>{children}</DashboardProviders>
+          </main>
         </div>
       </div>
     </div>

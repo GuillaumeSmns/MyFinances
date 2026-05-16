@@ -1,17 +1,17 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 
 type SummaryCardProps = {
   label: string;
   value: number;
   tone?: "neutral" | "positive" | "negative" | "accent";
   helper?: string;
-  format?: "currency" | "percent";
+  format?: "currency" | "signed-currency" | "percent";
   icon?: LucideIcon;
 };
-
-const formatValue = (value: number, format: "currency" | "percent") =>
-  format === "percent" ? `${value.toLocaleString()}%` : `AED ${value.toLocaleString()}`;
 
 export function SummaryCard({
   label,
@@ -21,6 +21,7 @@ export function SummaryCard({
   format = "currency",
   icon: Icon,
 }: SummaryCardProps) {
+  const { formatAmount, formatSignedAmount } = useCurrency();
   const toneClass =
     tone === "positive"
       ? "text-emerald-300 mf-light:text-emerald-700"
@@ -40,7 +41,13 @@ export function SummaryCard({
           </span>
         )}
       </div>
-      <p className={`mt-2 text-3xl font-semibold tracking-tight ${toneClass}`}>{formatValue(value, format)}</p>
+      <p className={`mt-2 text-3xl font-semibold tracking-tight ${toneClass}`}>
+        {format === "percent"
+          ? `${value.toLocaleString()}%`
+          : format === "signed-currency"
+            ? formatSignedAmount(value)
+            : formatAmount(value)}
+      </p>
       {helper && <p className="mt-2 text-xs text-slate-400 mf-light:text-slate-600">{helper}</p>}
     </DashboardCard>
   );

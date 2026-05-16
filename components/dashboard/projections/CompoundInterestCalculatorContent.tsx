@@ -1,8 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Coins, Percent, TrendingUp } from "lucide-react";
+import { StringNumericInput } from "@/components/dashboard/NumericInput";
+import { useNumericFields } from "@/components/dashboard/useNumericFields";
 import { CalculatorField, inputClassName } from "@/components/dashboard/projections/CalculatorField";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { IconBox } from "@/components/dashboard/IconBox";
@@ -11,8 +13,8 @@ import {
   computeCompoundInterest,
   DEFAULT_COMPOUND_INPUTS,
   formatUsd,
-  type CompoundInterestInputs,
 } from "@/lib/compound-interest";
+
 const CompoundGrowthChart = dynamic(
   () =>
     import("@/components/dashboard/projections/CompoundGrowthChart").then(
@@ -30,11 +32,6 @@ const CompoundGrowthChart = dynamic(
     ),
   },
 );
-
-function parseNumber(value: string, fallback: number) {
-  const parsed = Number.parseFloat(value.replace(/,/g, ""));
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
 
 type ResultMetricProps = {
   label: string;
@@ -70,7 +67,15 @@ function ResultMetric({ label, value, variant = "default" }: ResultMetricProps) 
 }
 
 export function CompoundInterestCalculatorContent() {
-  const [inputs, setInputs] = useState<CompoundInterestInputs>(DEFAULT_COMPOUND_INPUTS);
+  const { fields, setField, values: rawValues } = useNumericFields(DEFAULT_COMPOUND_INPUTS);
+
+  const inputs = useMemo(
+    () => ({
+      ...rawValues,
+      years: Math.max(0, Math.floor(rawValues.years)),
+    }),
+    [rawValues],
+  );
 
   const result = useMemo(() => computeCompoundInterest(inputs), [inputs]);
 
@@ -78,10 +83,6 @@ export function CompoundInterestCalculatorContent() {
     () => buildCompoundSummarySentence(inputs, result),
     [inputs, result],
   );
-
-  const update = <K extends keyof CompoundInterestInputs>(key: K, value: CompoundInterestInputs[K]) => {
-    setInputs((prev) => ({ ...prev, [key]: value }));
-  };
 
   return (
     <div className="space-y-8">
@@ -114,52 +115,38 @@ export function CompoundInterestCalculatorContent() {
             aria-label="Compound interest calculator"
           >
             <CalculatorField id="initial-capital" label="Initial capital" prefix="$">
-              <input
+              <StringNumericInput
                 id="initial-capital"
-                type="number"
-                min={0}
-                step={100}
                 className={inputClassName}
-                value={inputs.initialCapital}
-                onChange={(e) => update("initialCapital", parseNumber(e.target.value, 0))}
+                value={fields.initialCapital}
+                onValueChange={(value) => setField("initialCapital", value)}
               />
             </CalculatorField>
 
             <CalculatorField id="monthly-contribution" label="Monthly contribution" prefix="$">
-              <input
+              <StringNumericInput
                 id="monthly-contribution"
-                type="number"
-                min={0}
-                step={50}
                 className={inputClassName}
-                value={inputs.monthlyContribution}
-                onChange={(e) => update("monthlyContribution", parseNumber(e.target.value, 0))}
+                value={fields.monthlyContribution}
+                onValueChange={(value) => setField("monthlyContribution", value)}
               />
             </CalculatorField>
 
             <CalculatorField id="years" label="Years of growth">
-              <input
+              <StringNumericInput
                 id="years"
-                type="number"
-                min={0}
-                max={80}
-                step={1}
                 className={inputClassName}
-                value={inputs.years}
-                onChange={(e) => update("years", Math.max(0, Math.floor(parseNumber(e.target.value, 0))))}
+                value={fields.years}
+                onValueChange={(value) => setField("years", value)}
               />
             </CalculatorField>
 
             <CalculatorField id="rate" label="Yearly interest rate">
-              <input
+              <StringNumericInput
                 id="rate"
-                type="number"
-                min={0}
-                max={100}
-                step={0.1}
                 className={inputClassName}
-                value={inputs.annualRatePercent}
-                onChange={(e) => update("annualRatePercent", parseNumber(e.target.value, 0))}
+                value={fields.annualRatePercent}
+                onValueChange={(value) => setField("annualRatePercent", value)}
               />
             </CalculatorField>
           </form>

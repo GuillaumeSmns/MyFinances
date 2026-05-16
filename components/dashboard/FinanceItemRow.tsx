@@ -1,3 +1,4 @@
+import { BlurNumericInput } from "@/components/dashboard/NumericInput";
 import { Trash2 } from "lucide-react";
 import type { FinanceItem } from "@/components/dashboard/types";
 
@@ -20,12 +21,9 @@ export function FinanceItemRow({ item, onAmountChange, onLabelChange, onDelete }
       />
       <div className="flex items-center gap-2 rounded-lg border border-white/12 bg-slate-900/90 px-3 py-2 transition focus-within:border-cyan-300/50 focus-within:ring-2 focus-within:ring-cyan-300/15 mf-light:border-slate-200 mf-light:bg-white">
         <span className="text-xs font-medium tracking-wide text-slate-400">AED</span>
-        <input
-          type="number"
-          min={0}
-          step="0.01"
+        <BlurNumericInput
           value={Number.isFinite(item.amount) ? item.amount : 0}
-          onChange={(event) => onAmountChange(item.id, Number(event.target.value || 0))}
+          onValueChange={(amount) => onAmountChange(item.id, amount)}
           className="no-spinner w-full min-w-[120px] bg-transparent text-sm font-medium text-slate-100 outline-none placeholder:text-slate-500 mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
         />
       </div>

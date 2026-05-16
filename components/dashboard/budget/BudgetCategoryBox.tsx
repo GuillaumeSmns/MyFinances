@@ -7,6 +7,7 @@ import {
   FloatingCategoryControls,
   type CategoryDragHandleProps,
 } from "@/components/dashboard/budget/FloatingCategoryControls";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import type { BudgetCategory } from "@/lib/budget-model";
 import { sumCategory } from "@/lib/budget-model";
 
@@ -39,6 +40,7 @@ export function BudgetCategoryBox({
   onDeleteCategory,
   onAddCategoryAfter,
 }: BudgetCategoryBoxProps) {
+  const { formatAmount } = useCurrency();
   const total = sumCategory(category);
 
   return (
@@ -63,7 +65,7 @@ export function BudgetCategoryBox({
             className="w-full min-w-0 flex-1 border-0 bg-transparent text-base font-semibold text-white outline-none focus:ring-0 mf-light:text-slate-900"
           />
           <p className="shrink-0 text-sm font-medium tabular-nums text-white mf-light:text-slate-900">
-            AED {total.toLocaleString()}
+            {formatAmount(total)}
           </p>
         </header>
 

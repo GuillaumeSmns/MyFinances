@@ -1,4 +1,8 @@
+"use client";
+
 import { Trash2 } from "lucide-react";
+import { BlurNumericInput } from "@/components/dashboard/NumericInput";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import type { FinanceItem } from "@/components/dashboard/types";
 
 type BudgetItemRowProps = {
@@ -9,6 +13,8 @@ type BudgetItemRowProps = {
 };
 
 export function BudgetItemRow({ item, onAmountChange, onLabelChange, onDelete }: BudgetItemRowProps) {
+  const { currencyCode } = useCurrency();
+
   return (
     <div className="grid grid-cols-1 gap-2 rounded-xl border border-white/[0.08] bg-slate-950/40 px-3 py-2.5 sm:grid-cols-[1fr_auto_auto] sm:items-center sm:gap-3 mf-light:border-slate-200/80 mf-light:bg-white/90">
       <input
@@ -19,13 +25,10 @@ export function BudgetItemRow({ item, onAmountChange, onLabelChange, onDelete }:
         className="w-full min-w-0 border-0 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500 focus:ring-0 mf-light:text-slate-900"
       />
       <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-900/80 px-3 py-1.5 transition focus-within:border-amber-300/40 focus-within:ring-1 focus-within:ring-amber-300/20 mf-light:border-slate-200 mf-light:bg-slate-50">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">AED</span>
-        <input
-          type="number"
-          min={0}
-          step="0.01"
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{currencyCode}</span>
+        <BlurNumericInput
           value={Number.isFinite(item.amount) ? item.amount : 0}
-          onChange={(e) => onAmountChange(item.id, Number(e.target.value || 0))}
+          onValueChange={(amount) => onAmountChange(item.id, amount)}
           aria-label="Amount"
           className="no-spinner w-full min-w-[100px] bg-transparent text-sm font-medium tabular-nums text-slate-100 outline-none mf-light:text-slate-900"
         />

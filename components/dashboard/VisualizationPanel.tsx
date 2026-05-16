@@ -1,15 +1,18 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import {
   ArrowDownRight,
   ArrowUpRight,
   BarChart3,
   Building2,
   CreditCard,
-  GitCompare,
   Home,
   Landmark,
   ListTree,
 } from "lucide-react";
+import { CashflowAmountLine } from "@/components/dashboard/overview/CashflowAmountLine";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { IconBox } from "@/components/dashboard/IconBox";
 import type { SectionTotal } from "@/components/dashboard/types";
@@ -48,6 +51,7 @@ export function VisualizationPanel({
   investmentSections,
   expenseSections,
 }: VisualizationPanelProps) {
+  const { formatAmount } = useCurrency();
   const grandTotal = Math.max(totalRevenue + totalExpense, 1);
   const revenueShare = (totalRevenue / grandTotal) * 100;
   const expenseShare = (totalExpense / grandTotal) * 100;
@@ -68,7 +72,7 @@ export function VisualizationPanel({
               <RowIcon className="h-3.5 w-3.5 shrink-0 text-slate-500" strokeWidth={1.5} aria-hidden />
               <span className="truncate">{section.name}</span>
             </span>
-            <span className="shrink-0 text-slate-400 mf-light:text-slate-600">AED {section.total.toLocaleString()}</span>
+            <span className="shrink-0 text-slate-400 mf-light:text-slate-600">{formatAmount(section.total)}</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-white/10">
             <div className={`h-full rounded-full ${barClass}`} style={{ width: `${width}%` }} />
@@ -93,23 +97,21 @@ export function VisualizationPanel({
             <ArrowUpRight className="h-4 w-4 shrink-0 text-emerald-400/90" strokeWidth={1.5} aria-hidden />
             Total Revenues
           </span>
-          <span className="text-emerald-300 mf-light:text-emerald-700">AED {totalRevenue.toLocaleString()}</span>
+          <span className="text-emerald-300 mf-light:text-emerald-700">{formatAmount(totalRevenue)}</span>
         </div>
         <div className="mb-2 flex items-center justify-between gap-2 text-sm">
           <span className="flex items-center gap-2 text-slate-300 mf-light:text-slate-700">
             <Landmark className="h-4 w-4 shrink-0 mf-text-investment" strokeWidth={1.5} aria-hidden />
             Total Investments
           </span>
-          <span className="mf-text-investment font-medium">
-            AED {totalInvestments.toLocaleString()}
-          </span>
+          <span className="mf-text-investment font-medium">{formatAmount(totalInvestments)}</span>
         </div>
         <div className="mb-2 flex items-center justify-between gap-2 text-sm">
           <span className="flex items-center gap-2 text-slate-300 mf-light:text-slate-700">
             <ArrowDownRight className="h-4 w-4 shrink-0 text-rose-400/90" strokeWidth={1.5} aria-hidden />
             Total Expenses
           </span>
-          <span className="text-rose-500 mf-light:text-rose-800">AED {totalExpense.toLocaleString()}</span>
+          <span className="text-rose-500 mf-light:text-rose-800">{formatAmount(totalExpense)}</span>
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-white/10">
           <div className="flex h-full">
@@ -117,19 +119,9 @@ export function VisualizationPanel({
             <div className="mf-expense-fill h-full" style={{ width: `${expenseShare}%` }} />
           </div>
         </div>
-        <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-          <GitCompare className="h-4 w-4 shrink-0 text-slate-500" strokeWidth={1.5} aria-hidden />
-          <span className="text-slate-400 mf-light:text-slate-600">Difference: </span>
-          <span
-            className={
-              difference >= 0
-                ? "text-emerald-300 mf-light:text-emerald-700"
-                : "text-rose-500 mf-light:text-rose-800"
-            }
-          >
-            {difference >= 0 ? "Cashflow" : "Deficit"} (AED {Math.abs(difference).toLocaleString()})
-          </span>
-        </p>
+        <div className="mt-3">
+          <CashflowAmountLine value={difference} />
+        </div>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">

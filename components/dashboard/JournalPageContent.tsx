@@ -5,6 +5,7 @@ import { AddCategoryCard } from "@/components/dashboard/budget/AddCategoryCard";
 import { BudgetSortableCategoryList } from "@/components/dashboard/budget/BudgetSortableCategoryList";
 import { BudgetTabs } from "@/components/dashboard/budget/BudgetTabs";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import { VisualizationPanel } from "@/components/dashboard/VisualizationPanel";
 import {
   addItem,
@@ -101,6 +102,8 @@ export function JournalPageContent() {
 
   const currentSerialized = JSON.stringify(snap);
   const dirty = currentSerialized !== lastPersistedSerialized;
+
+  const { formatSignedAmount } = useCurrency();
 
   const { totalRevenues, totalInvestments, totalExpenses, surplus } = useMemo(
     () => computeBudgetTotals(snap),
@@ -317,7 +320,16 @@ export function JournalPageContent() {
               ) : (
                 <TrendingDown className="h-4 w-4 shrink-0 text-rose-400" strokeWidth={1.5} aria-hidden />
               )}
-              {surplus >= 0 ? "Cashflow" : "Deficit"}: AED {Math.abs(surplus).toLocaleString()}
+              <span className="text-slate-400">Cashflow: </span>
+              <span
+                className={
+                  surplus >= 0
+                    ? "font-medium text-emerald-300 mf-light:text-emerald-700"
+                    : "font-medium text-rose-500 mf-light:text-rose-800"
+                }
+              >
+                {formatSignedAmount(surplus)}
+              </span>
             </p>
           </div>
 
@@ -354,8 +366,9 @@ export function JournalPageContent() {
         <SummaryCard label="Total Investments" value={totalInvestments} tone="accent" icon={Landmark} />
         <SummaryCard label="Total Expenses" value={totalExpenses} tone="negative" icon={ArrowDownRight} />
         <SummaryCard
-          label={surplus >= 0 ? "Cashflow" : "Deficit"}
-          value={Math.abs(surplus)}
+          label="Cashflow"
+          value={surplus}
+          format="signed-currency"
           tone={surplus >= 0 ? "positive" : "negative"}
           helper="Revenues minus expenses (investments excluded)"
           icon={surplus >= 0 ? TrendingUp : TrendingDown}

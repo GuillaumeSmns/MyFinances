@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import { MF_THEME, MF_THEME_LEGACY, type MfPaletteId } from "@/lib/theme-colors";
 import type { CashflowMonthPoint } from "@/lib/journal-overview";
 
@@ -39,12 +40,10 @@ type MonthlyCashflowChartProps = {
   data: CashflowMonthPoint[];
 };
 
-function formatAed(value: number) {
-  return `AED ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-}
-
 export function MonthlyCashflowChart({ data }: MonthlyCashflowChartProps) {
+  const { formatAmount } = useCurrency();
   const colors = chartColors(readPalette());
+  const formatAxisValue = (value: number) => formatAmount(value, { maximumFractionDigits: 0 });
 
   return (
     <div className="w-full" style={{ height: 320, minHeight: 260 }}>
@@ -67,7 +66,7 @@ export function MonthlyCashflowChart({ data }: MonthlyCashflowChartProps) {
           <Tooltip
             contentStyle={colors.tooltip}
             formatter={(value, name) => [
-              formatAed(Number(value ?? 0)),
+              formatAxisValue(Number(value ?? 0)),
               String(name) === "Revenue" ? "Revenue" : "Expenses",
             ]}
             labelFormatter={(_, payload) => {

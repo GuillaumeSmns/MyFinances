@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { parseNumericInput, sanitizeNumericDraft } from "@/lib/numeric-input";
 
 type AddItemFormProps = {
   onAddItem: (label: string, amount: number) => void;
@@ -17,7 +18,7 @@ export function AddItemForm({ onAddItem, buttonLabel = "Add Item" }: AddItemForm
     const normalizedLabel = label.trim();
     if (!normalizedLabel) return;
 
-    onAddItem(normalizedLabel, Number(amount || 0));
+    onAddItem(normalizedLabel, parseNumericInput(amount, 0));
     setLabel("");
     setAmount("");
   };
@@ -33,11 +34,11 @@ export function AddItemForm({ onAddItem, buttonLabel = "Add Item" }: AddItemForm
       <div className="flex items-center gap-2 rounded-lg border border-white/12 bg-slate-900/90 px-3 py-2 transition focus-within:border-cyan-300/50 focus-within:ring-2 focus-within:ring-cyan-300/15 mf-light:border-slate-200 mf-light:bg-white">
         <span className="text-xs font-medium tracking-wide text-slate-400">AED</span>
         <input
-          type="number"
-          min={0}
-          step="0.01"
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
           value={amount}
-          onChange={(event) => setAmount(event.target.value)}
+          onChange={(event) => setAmount(sanitizeNumericDraft(event.target.value))}
           placeholder="0.00"
           className="no-spinner w-full bg-transparent text-sm font-medium text-slate-100 outline-none placeholder:text-slate-500 mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
         />

@@ -13,13 +13,14 @@ import {
   LineChart,
   Percent,
   PieChart,
-  Scale,
   Wallet,
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { IconBox } from "@/components/dashboard/IconBox";
 import { SAMPLE_ASSET_ALLOCATION } from "@/components/dashboard/AssetAllocationChart";
+import { CashflowAmountLine } from "@/components/dashboard/overview/CashflowAmountLine";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import {
   buildCashflowSeriesFromRecord,
   computeJournalDerivedHealth,
@@ -128,10 +129,11 @@ export function OverviewPageContent() {
     });
   }, []);
 
+  const { formatAmount, currencyCode } = useCurrency();
+
   const {
     monthlyRevenue,
     monthlyExpenses,
-    surplus,
     savingsRate,
     totalDebts,
     totalInvestments,
@@ -163,7 +165,7 @@ export function OverviewPageContent() {
 
   const cashflowCardSubtitle = cashflowIsSample
     ? "Sample monthly trend — save months in Budget to see your data"
-    : "All saved months · AED";
+    : `All saved months · ${currencyCode}`;
 
   return (
     <div className="space-y-8">
@@ -187,7 +189,7 @@ export function OverviewPageContent() {
         </div>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <SummaryCard label="Total monthly revenue" value={monthlyRevenue} tone="positive" icon={ArrowUpRight} />
         <SummaryCard
           label="Total investments"
@@ -197,20 +199,14 @@ export function OverviewPageContent() {
           icon={Landmark}
         />
         <SummaryCard label="Total monthly expenses" value={monthlyExpenses} tone="negative" icon={ArrowDownRight} />
-        <SummaryCard
-          label="Monthly surplus / deficit"
-          value={surplus}
-          tone={surplus >= 0 ? "positive" : "negative"}
-          helper={surplus >= 0 ? "Cash-positive month" : "Review spending in Budget"}
-          icon={Scale}
-        />
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         <SummaryCard label="Total debts" value={totalDebts} helper={debtsHelper} icon={CreditCard} />
         <SummaryCard
-          label="Net cash flow"
+          label="Cashflow"
           value={netCashFlow}
+          format="signed-currency"
           tone={netCashFlow >= 0 ? "positive" : "negative"}
           helper={netCashHelper}
           icon={Wallet}
@@ -237,11 +233,11 @@ export function OverviewPageContent() {
           <div className="mb-3 flex justify-between text-sm">
             <span className="flex items-center gap-2 text-emerald-300">
               <ArrowUpRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.5} aria-hidden />
-              AED {monthlyRevenue.toLocaleString()}
+              {formatAmount(monthlyRevenue)}
             </span>
             <span className="flex items-center gap-2 text-rose-500 mf-light:text-rose-800">
               <ArrowDownRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.5} aria-hidden />
-              AED {monthlyExpenses.toLocaleString()}
+              {formatAmount(monthlyExpenses)}
             </span>
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-white/10">
@@ -292,6 +288,14 @@ export function OverviewPageContent() {
           }
         >
           <MonthlyCashflowChart data={cashflowData} />
+          <div className="mt-4 border-t border-white/10 pt-4 mf-light:border-slate-200">
+            <CashflowAmountLine value={netCashFlow} />
+            <p className="mt-1 text-xs text-slate-500 mf-light:text-slate-500">
+              {hasJournalData && latestMonthKey
+                ? `Latest saved month · ${formatMonthLabel(latestMonthKey)}`
+                : "Sample month"}
+            </p>
+          </div>
         </DashboardCard>
 
         <DashboardCard

@@ -1,8 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Coins, Sunset } from "lucide-react";
+import { StringNumericInput } from "@/components/dashboard/NumericInput";
+import { useNumericFields } from "@/components/dashboard/useNumericFields";
 import { CalculatorField, inputClassName } from "@/components/dashboard/projections/CalculatorField";
 import { ProjectionResultMetric } from "@/components/dashboard/projections/ProjectionResultMetric";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -11,8 +13,7 @@ import { formatUsd } from "@/lib/compound-interest";
 import {
   buildRetirementSummarySentence,
   computeRetirementPlanning,
-  createDefaultRetirementInputs,
-  type RetirementPlanningInputs,
+  DEFAULT_RETIREMENT_INPUTS,
 } from "@/lib/retirement-planning";
 
 const RetirementGrowthChart = dynamic(
@@ -33,13 +34,16 @@ const RetirementGrowthChart = dynamic(
   },
 );
 
-function parseNumber(value: string, fallback: number) {
-  const parsed = Number.parseFloat(value.replace(/,/g, ""));
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
 export function RetirementPlanningContent() {
-  const [inputs, setInputs] = useState<RetirementPlanningInputs>(createDefaultRetirementInputs);
+  const { fields, setField, values: rawValues } = useNumericFields(DEFAULT_RETIREMENT_INPUTS);
+
+  const inputs = useMemo(
+    () => ({
+      ...rawValues,
+      currentAge: Math.max(18, Math.floor(rawValues.currentAge)),
+    }),
+    [rawValues],
+  );
 
   const result = useMemo(() => computeRetirementPlanning(inputs), [inputs]);
 
@@ -47,13 +51,6 @@ export function RetirementPlanningContent() {
     () => buildRetirementSummarySentence(inputs, result),
     [inputs, result],
   );
-
-  const update = <K extends keyof RetirementPlanningInputs>(
-    key: K,
-    value: RetirementPlanningInputs[K],
-  ) => {
-    setInputs((prev) => ({ ...prev, [key]: value }));
-  };
 
   return (
     <div className="space-y-8">
@@ -87,66 +84,47 @@ export function RetirementPlanningContent() {
             aria-label="Retirement planning calculator"
           >
             <CalculatorField id="current-age" label="Current age">
-              <input
+              <StringNumericInput
                 id="current-age"
-                type="number"
-                min={18}
-                max={90}
-                step={1}
                 className={inputClassName}
-                value={inputs.currentAge}
-                onChange={(e) =>
-                  update("currentAge", Math.max(18, Math.floor(parseNumber(e.target.value, 18))))
-                }
+                value={fields.currentAge}
+                onValueChange={(value) => setField("currentAge", value)}
               />
             </CalculatorField>
 
             <CalculatorField id="annual-revenue" label="Current annual revenue" prefix="$">
-              <input
+              <StringNumericInput
                 id="annual-revenue"
-                type="number"
-                min={0}
-                step={1000}
                 className={inputClassName}
-                value={inputs.annualRevenue}
-                onChange={(e) => update("annualRevenue", parseNumber(e.target.value, 0))}
+                value={fields.annualRevenue}
+                onValueChange={(value) => setField("annualRevenue", value)}
               />
             </CalculatorField>
 
             <CalculatorField id="monthly-savings" label="Monthly savings" prefix="$">
-              <input
+              <StringNumericInput
                 id="monthly-savings"
-                type="number"
-                min={0}
-                step={50}
                 className={inputClassName}
-                value={inputs.monthlySavings}
-                onChange={(e) => update("monthlySavings", parseNumber(e.target.value, 0))}
+                value={fields.monthlySavings}
+                onValueChange={(value) => setField("monthlySavings", value)}
               />
             </CalculatorField>
 
             <CalculatorField id="current-capital" label="Current capital" prefix="$">
-              <input
+              <StringNumericInput
                 id="current-capital"
-                type="number"
-                min={0}
-                step={1000}
                 className={inputClassName}
-                value={inputs.currentCapital}
-                onChange={(e) => update("currentCapital", parseNumber(e.target.value, 0))}
+                value={fields.currentCapital}
+                onValueChange={(value) => setField("currentCapital", value)}
               />
             </CalculatorField>
 
             <CalculatorField id="capital-rate" label="Interest on capital" suffix="% / yr">
-              <input
+              <StringNumericInput
                 id="capital-rate"
-                type="number"
-                min={0}
-                max={100}
-                step={0.1}
                 className={inputClassName}
-                value={inputs.interestOnCapitalPercent}
-                onChange={(e) => update("interestOnCapitalPercent", parseNumber(e.target.value, 0))}
+                value={fields.interestOnCapitalPercent}
+                onValueChange={(value) => setField("interestOnCapitalPercent", value)}
               />
             </CalculatorField>
 
@@ -155,17 +133,11 @@ export function RetirementPlanningContent() {
               label="Percentage of current revenue at retirement"
               suffix="% / yr"
             >
-              <input
+              <StringNumericInput
                 id="revenue-at-retirement"
-                type="number"
-                min={0}
-                max={100}
-                step={1}
                 className={inputClassName}
-                value={inputs.revenuePercentAtRetirement}
-                onChange={(e) =>
-                  update("revenuePercentAtRetirement", parseNumber(e.target.value, 0))
-                }
+                value={fields.revenuePercentAtRetirement}
+                onValueChange={(value) => setField("revenuePercentAtRetirement", value)}
               />
             </CalculatorField>
 
@@ -174,17 +146,25 @@ export function RetirementPlanningContent() {
               label="Interests on capital at retirement"
               suffix="% / yr"
             >
-              <input
+              <StringNumericInput
                 id="interest-at-retirement"
-                type="number"
-                min={0}
-                max={100}
-                step={0.1}
                 className={inputClassName}
-                value={inputs.interestAtRetirementPercent}
-                onChange={(e) =>
-                  update("interestAtRetirementPercent", parseNumber(e.target.value, 0))
-                }
+                value={fields.interestAtRetirementPercent}
+                onValueChange={(value) => setField("interestAtRetirementPercent", value)}
+              />
+            </CalculatorField>
+
+            <CalculatorField
+              id="inflation"
+              label="Inflation"
+              suffix="% / yr"
+              labelTooltip="Calculation of inflation calculated up to retirement age"
+            >
+              <StringNumericInput
+                id="inflation"
+                className={inputClassName}
+                value={fields.inflationPercentPerYear}
+                onValueChange={(value) => setField("inflationPercentPerYear", value)}
               />
             </CalculatorField>
           </form>

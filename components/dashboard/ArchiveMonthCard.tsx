@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
+import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import { formatMonthLabel } from "@/lib/journal-storage";
 
 export type ArchiveMonthCardProps = {
@@ -13,10 +14,6 @@ export type ArchiveMonthCardProps = {
   onDelete: () => void;
 };
 
-function compactAed(n: number) {
-  return Math.round(n).toLocaleString();
-}
-
 export function ArchiveMonthCard({
   monthKey,
   revenue,
@@ -26,7 +23,8 @@ export function ArchiveMonthCard({
   onSelect,
   onDelete,
 }: ArchiveMonthCardProps) {
-  const surplusPositive = surplus >= 0;
+  const { formatAmount, formatSignedAmount } = useCurrency();
+  const cashflowPositive = surplus >= 0;
 
   return (
     <div
@@ -51,20 +49,24 @@ export function ArchiveMonthCard({
         <dl className="flex flex-1 flex-col justify-center gap-2.5 text-[11px] leading-tight">
           <div className="flex items-baseline justify-between gap-2">
             <dt className="shrink-0 text-slate-500">Revenue</dt>
-            <dd className="truncate font-semibold tabular-nums text-emerald-200/95">AED {compactAed(revenue)}</dd>
+            <dd className="truncate font-semibold tabular-nums text-emerald-200/95">{formatAmount(revenue)}</dd>
           </div>
           <div className="flex items-baseline justify-between gap-2">
             <dt className="shrink-0 text-slate-500">Expenses</dt>
             <dd className="truncate font-semibold tabular-nums mf-text-expense mf-light:text-rose-800">
-              AED {compactAed(expenses)}
+              {formatAmount(expenses)}
             </dd>
           </div>
           <div className="flex items-baseline justify-between gap-2">
-            <dt className="shrink-0 text-slate-500">{surplusPositive ? "Cashflow" : "Deficit"}</dt>
+            <dt className="shrink-0 text-slate-500">Cashflow</dt>
             <dd
-              className={`truncate font-semibold tabular-nums ${surplusPositive ? "text-cyan-200" : "text-amber-200/95"}`}
+              className={`truncate font-semibold tabular-nums ${
+                cashflowPositive
+                  ? "text-emerald-300 mf-light:text-emerald-700"
+                  : "text-rose-500 mf-light:text-rose-800"
+              }`}
             >
-              AED {compactAed(Math.abs(surplus))}
+              {formatSignedAmount(surplus)}
             </dd>
           </div>
         </dl>

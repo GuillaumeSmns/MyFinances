@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ProfilePageContent, type ProfilePageModel } from "@/components/dashboard/ProfilePageContent";
+import { ProfilePageContent, type ProfilePageAccount } from "@/components/dashboard/ProfilePageContent";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
@@ -27,14 +27,12 @@ export default async function ProfilePage() {
   const fullName = typeof meta?.full_name === "string" && meta.full_name.trim() ? meta.full_name.trim() : null;
   const displayName = fullName ?? (email !== "—" ? (email.split("@")[0] ?? "Guest") : "Guest");
 
-  const profile: ProfilePageModel = {
-    displayName,
+  const account: ProfilePageAccount = {
+    fallbackDisplayName: displayName,
     email,
     accountStatus: user ? "Active" : "Not signed in",
     memberSince: user ? formatMemberSince(user.created_at) : "—",
-    preferredCurrency: "AED",
-    defaultMonthView: "Current month",
   };
 
-  return <ProfilePageContent profile={profile} />;
+  return <ProfilePageContent account={account} />;
 }
