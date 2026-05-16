@@ -1,5 +1,6 @@
-import type { FinanceItem } from "@/components/dashboard/types";
-import type { JournalMonthSnapshot } from "@/lib/journal-storage";
+import type { JournalMonthSnapshot } from "@/lib/budget-model";
+import { computeBudgetTotals, getLoanTotal, sumCategory } from "@/lib/budget-model";
+import type { BudgetCategory } from "@/lib/budget-model";
 import { loadAllJournalMonths, listSavedMonthKeys } from "@/lib/journal-storage";
 
 export type JournalOverviewMetrics = {
@@ -7,9 +8,9 @@ export type JournalOverviewMetrics = {
   monthlyExpenses: number;
   surplus: number;
   savingsRate: number;
-  /** Sum of Loan section (monthly loan line items in Journal) */
+  /** Sum of Loan category (monthly loan line items in Budget) */
   totalDebts: number;
-  /** Sum of Investments section (monthly allocations in Journal) */
+  /** Sum of Investments tab categories */
   totalInvestments: number;
   netCashFlow: number;
 };
@@ -26,33 +27,17 @@ export type CashflowMonthPoint = {
   expenses: number;
 };
 
-function sumItems(items: FinanceItem[]): number {
-  return items.reduce((acc, item) => acc + item.amount, 0);
-}
-
 export function computeJournalOverviewMetrics(snapshot: JournalMonthSnapshot): JournalOverviewMetrics {
-  const pilotRev = sumItems(snapshot.pilotRevenue);
-  const financialRev = sumItems(snapshot.financialRevenue);
-  const immoRev = sumItems(snapshot.immoRevenue);
-  const monthlyRevenue = pilotRev + financialRev + immoRev;
-
-  const pilotExp = sumItems(snapshot.pilotExpense);
-  const loans = sumItems(snapshot.loanExpense);
-  const everyday = sumItems(snapshot.everydayExpense);
-  const home = sumItems(snapshot.homeCharges);
-  const investments = sumItems(snapshot.investments);
-  const monthlyExpenses = pilotExp + loans + everyday + home + investments;
-
-  const surplus = monthlyRevenue - monthlyExpenses;
-  const savingsRate = monthlyRevenue > 0 ? Math.round((surplus / monthlyRevenue) * 100) : 0;
+  const { totalRevenues, totalInvestments, totalExpenses, surplus } = computeBudgetTotals(snapshot);
+  const savingsRate = totalRevenues > 0 ? Math.round((surplus / totalRevenues) * 100) : 0;
 
   return {
-    monthlyRevenue,
-    monthlyExpenses,
+    monthlyRevenue: totalRevenues,
+    monthlyExpenses: totalExpenses,
     surplus,
     savingsRate,
-    totalDebts: loans,
-    totalInvestments: investments,
+    totalDebts: getLoanTotal(snapshot),
+    totalInvestments,
     netCashFlow: surplus,
   };
 }
@@ -124,4 +109,12 @@ export function getLatestSavedJournalFromStorage(): {
   const all = loadAllJournalMonths();
   const snap = all[key];
   return snap ? { monthKey: key, snapshot: snap } : null;
+}
+
+/** Category breakdown for visualization panels. */
+export function buildCategoryBreakdown(categories: BudgetCategory[]) {
+  return categories.map((cat) => ({
+    name: cat.title,
+    total: sumCategory(cat),
+  }));
 }

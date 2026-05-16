@@ -17,8 +17,10 @@ import type { SectionTotal } from "@/components/dashboard/types";
 type VisualizationPanelProps = {
   totalRevenue: number;
   totalExpense: number;
+  totalInvestments: number;
   difference: number;
   revenueSections: SectionTotal[];
+  investmentSections: SectionTotal[];
   expenseSections: SectionTotal[];
 };
 
@@ -30,15 +32,20 @@ function revenueRowIcon(name: string): LucideIcon {
 function expenseRowIcon(name: string): LucideIcon {
   if (name === "Loan") return CreditCard;
   if (name === "Home Charges") return Home;
-  if (name === "Investments") return Landmark;
   return ArrowDownRight;
+}
+
+function investmentRowIcon(): LucideIcon {
+  return Landmark;
 }
 
 export function VisualizationPanel({
   totalRevenue,
   totalExpense,
+  totalInvestments,
   difference,
   revenueSections,
+  investmentSections,
   expenseSections,
 }: VisualizationPanelProps) {
   const grandTotal = Math.max(totalRevenue + totalExpense, 1);
@@ -73,7 +80,7 @@ export function VisualizationPanel({
   return (
     <DashboardCard
       title="Cash Flow Visualization"
-      subtitle="Revenue vs expense and section-level contribution"
+      subtitle="Revenue, investments, expenses, and category-level contribution"
       titleIcon={
         <IconBox>
           <BarChart3 className="h-4 w-4" strokeWidth={1.5} />
@@ -90,15 +97,24 @@ export function VisualizationPanel({
         </div>
         <div className="mb-2 flex items-center justify-between gap-2 text-sm">
           <span className="flex items-center gap-2 text-slate-300 mf-light:text-slate-700">
+            <Landmark className="h-4 w-4 shrink-0 mf-text-investment" strokeWidth={1.5} aria-hidden />
+            Total Investments
+          </span>
+          <span className="mf-text-investment font-medium">
+            AED {totalInvestments.toLocaleString()}
+          </span>
+        </div>
+        <div className="mb-2 flex items-center justify-between gap-2 text-sm">
+          <span className="flex items-center gap-2 text-slate-300 mf-light:text-slate-700">
             <ArrowDownRight className="h-4 w-4 shrink-0 text-rose-400/90" strokeWidth={1.5} aria-hidden />
             Total Expenses
           </span>
-          <span className="text-rose-300 mf-light:text-rose-700">AED {totalExpense.toLocaleString()}</span>
+          <span className="text-rose-500 mf-light:text-rose-800">AED {totalExpense.toLocaleString()}</span>
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-white/10">
           <div className="flex h-full">
-            <div className="bg-emerald-400/80" style={{ width: `${revenueShare}%` }} />
-            <div className="bg-rose-400/80" style={{ width: `${expenseShare}%` }} />
+            <div className="bg-emerald-400/80 h-full" style={{ width: `${revenueShare}%` }} />
+            <div className="mf-expense-fill h-full" style={{ width: `${expenseShare}%` }} />
           </div>
         </div>
         <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
@@ -108,15 +124,15 @@ export function VisualizationPanel({
             className={
               difference >= 0
                 ? "text-emerald-300 mf-light:text-emerald-700"
-                : "text-rose-300 mf-light:text-rose-700"
+                : "text-rose-500 mf-light:text-rose-800"
             }
           >
-            {difference >= 0 ? "Surplus" : "Deficit"} (AED {Math.abs(difference).toLocaleString()})
+            {difference >= 0 ? "Cashflow" : "Deficit"} (AED {Math.abs(difference).toLocaleString()})
           </span>
         </p>
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <div className="space-y-3">
           <h4 className="flex items-center gap-2 text-sm font-medium text-white mf-light:text-slate-900">
             <ListTree className="h-4 w-4 text-slate-500" strokeWidth={1.5} aria-hidden />
@@ -127,9 +143,21 @@ export function VisualizationPanel({
         <div className="space-y-3">
           <h4 className="flex items-center gap-2 text-sm font-medium text-white mf-light:text-slate-900">
             <ListTree className="h-4 w-4 text-slate-500" strokeWidth={1.5} aria-hidden />
+            Investments Breakdown
+          </h4>
+          {renderBreakdown(
+            investmentSections,
+            totalInvestments,
+            "mf-investment-fill",
+            () => investmentRowIcon(),
+          )}
+        </div>
+        <div className="space-y-3">
+          <h4 className="flex items-center gap-2 text-sm font-medium text-white mf-light:text-slate-900">
+            <ListTree className="h-4 w-4 text-slate-500" strokeWidth={1.5} aria-hidden />
             Expense Breakdown
           </h4>
-          {renderBreakdown(expenseSections, totalExpense, "bg-rose-400/80", expenseRowIcon)}
+          {renderBreakdown(expenseSections, totalExpense, "mf-expense-fill", expenseRowIcon)}
         </div>
       </div>
     </DashboardCard>

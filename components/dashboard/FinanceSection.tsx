@@ -12,7 +12,7 @@ type FinanceSectionProps = {
   items: FinanceItem[];
   total: number;
   onAmountChange: (id: string, value: number) => void;
-  onLabelChange?: (id: string, label: string) => void;
+  onLabelChange: (id: string, label: string) => void;
   onDeleteItem?: (id: string) => void;
   onAddItem?: (label: string, amount: number) => void;
   addButtonLabel?: string;

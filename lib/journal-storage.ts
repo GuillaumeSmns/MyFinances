@@ -1,18 +1,13 @@
-import type { FinanceItem } from "@/components/dashboard/types";
+import {
+  getDefaultJournalSnapshot,
+  normalizeJournalSnapshot,
+  type JournalMonthSnapshot,
+} from "@/lib/budget-model";
+
+export type { BudgetCategory, BudgetTabId, JournalMonthSnapshot, LegacyJournalMonthSnapshot } from "@/lib/budget-model";
+export { getDefaultJournalSnapshot, normalizeJournalSnapshot } from "@/lib/budget-model";
 
 const STORAGE_KEY = "myfinances-journal-months";
-
-export type JournalMonthSnapshot = {
-  pilotRevenue: FinanceItem[];
-  financialRevenue: FinanceItem[];
-  immoRevenue: FinanceItem[];
-  pilotExpense: FinanceItem[];
-  loanExpense: FinanceItem[];
-  everydayExpense: FinanceItem[];
-  homeCharges: FinanceItem[];
-  investments: FinanceItem[];
-  savedAt?: string;
-};
 
 export function monthKeyFromDate(d: Date): string {
   const y = d.getFullYear();
@@ -36,39 +31,6 @@ export function formatMonthLabel(key: string): string {
     month: "long",
     year: "numeric",
   });
-}
-
-export function getDefaultJournalSnapshot(): JournalMonthSnapshot {
-  return {
-    pilotRevenue: [
-      { id: "rev-basic-salary", label: "Basic salary", amount: 5200 },
-      { id: "rev-accommodation", label: "Accommodation allowance", amount: 1300 },
-      { id: "rev-layover", label: "Layover allowance", amount: 550 },
-      { id: "rev-flight-pay", label: "Flight pay", amount: 1100 },
-      { id: "rev-other", label: "Other", amount: 300 },
-    ],
-    financialRevenue: [
-      { id: "default-fin-dividends", label: "Dividends", amount: 260 },
-      { id: "default-fin-side-income", label: "Side income", amount: 420 },
-    ],
-    immoRevenue: [{ id: "default-immo-rent", label: "Apartment rent", amount: 950 }],
-    pilotExpense: [
-      { id: "exp-provident", label: "Provident fund deductions", amount: 700 },
-      { id: "exp-staff-travel", label: "Staff travel", amount: 180 },
-      { id: "exp-pilot-other", label: "Other", amount: 120 },
-    ],
-    loanExpense: [{ id: "default-loan-car", label: "Car loan", amount: 480 }],
-    everydayExpense: [
-      { id: "default-everyday-groceries", label: "Groceries", amount: 530 },
-      { id: "default-everyday-dining", label: "Dining", amount: 220 },
-    ],
-    homeCharges: [
-      { id: "home-dewa", label: "DEWA", amount: 260 },
-      { id: "home-service-fees", label: "Service fees", amount: 340 },
-      { id: "home-other", label: "Other", amount: 90 },
-    ],
-    investments: [{ id: "default-investment-etf", label: "ETF monthly contribution", amount: 400 }],
-  };
 }
 
 function cloneSnapshot(s: JournalMonthSnapshot): JournalMonthSnapshot {
@@ -98,8 +60,13 @@ export function loadAllJournalMonths(): Record<string, JournalMonthSnapshot> {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
-    const parsed = JSON.parse(raw) as Record<string, JournalMonthSnapshot>;
-    return parsed && typeof parsed === "object" ? parsed : {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== "object") return {};
+    const result: Record<string, JournalMonthSnapshot> = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      result[key] = normalizeJournalSnapshot(value);
+    }
+    return result;
   } catch {
     return {};
   }

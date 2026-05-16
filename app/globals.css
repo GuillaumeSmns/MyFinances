@@ -67,8 +67,9 @@ html[data-mf-palette="luxury"] {
   --mf-emerald-400: #8aa899;
   --mf-emerald-500: #7a9889;
   --mf-rose-300: #c9a0a0;
-  --mf-rose-400: #b89090;
-  --mf-rose-500: #a88080;
+  --mf-rose-400: #c07878;
+  --mf-rose-500: #b85c5c;
+  --mf-expense: var(--mf-rose-500);
 
   --mf-amber-100: #f5ecdf;
   --mf-amber-300: #e5c89e;
@@ -158,6 +159,7 @@ html:not([data-mf-palette]) {
   --mf-rose-300: #fda4af;
   --mf-rose-400: #fb7185;
   --mf-rose-500: #f43f5e;
+  --mf-expense: var(--mf-rose-500);
 
   --mf-amber-100: #fef3c7;
   --mf-amber-300: #fcd34d;
@@ -253,8 +255,28 @@ body {
 }
 
 .mf-chart-bar {
-  background: linear-gradient(to top, #d4a46a, #f4be7e);
-  box-shadow: 0 0 18px rgba(244, 190, 126, 0.22);
+  background: linear-gradient(to top, var(--mf-rose-400), var(--mf-expense));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--mf-expense) 28%, transparent);
+}
+
+.mf-expense-fill {
+  background-color: color-mix(in srgb, var(--mf-expense) 85%, transparent);
+}
+
+.mf-text-expense {
+  color: var(--mf-expense);
+}
+
+.mf-text-investment {
+  color: #f4be7e;
+}
+
+.mf-light .mf-text-investment {
+  color: #8f6b3f;
+}
+
+.mf-investment-fill {
+  background-color: color-mix(in srgb, #f4be7e 85%, transparent);
 }
 
 /* Landing hero holographic chart — borderless, integrates with page bg */

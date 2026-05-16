@@ -14,6 +14,12 @@ export const MF_PALETTE_STORAGE_KEY = "myfinances-palette";
 /** Primary accent — champagne gold */
 export const MF_ACCENT = "#f4be7e";
 
+/** Expense / negative finance — matches `--mf-expense` / `text-rose-500` */
+export const MF_EXPENSE = {
+  luxury: "#b85c5c",
+  legacy: "#f43f5e",
+} as const;
+
 export const MF_THEME = {
   accent: MF_ACCENT,
   accentMuted: "#d4a46a",
@@ -29,7 +35,7 @@ export const MF_THEME = {
   borderSubtle: "rgba(244, 190, 126, 0.14)",
   chart: {
     revenue: "#9cb8a8",
-    expense: "#c9a0a0",
+    expense: MF_EXPENSE.luxury,
     grid: "rgba(244, 190, 126, 0.08)",
     axis: "#8a8074",
     tooltipBg: "rgba(26, 23, 20, 0.96)",
@@ -45,7 +51,7 @@ export const MF_THEME_LEGACY = {
   accent: "#22d3ee",
   chart: {
     revenue: "#34d399",
-    expense: "#fb7185",
+    expense: MF_EXPENSE.legacy,
     grid: "rgba(255,255,255,0.06)",
     axis: "#94a3b8",
     tooltipBg: "rgba(15, 23, 42, 0.96)",

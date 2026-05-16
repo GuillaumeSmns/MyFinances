@@ -13,7 +13,6 @@ import {
   LineChart,
   Percent,
   PieChart,
-  Scale,
   Wallet,
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -131,7 +130,6 @@ export function OverviewPageContent() {
   const {
     monthlyRevenue,
     monthlyExpenses,
-    surplus,
     savingsRate,
     totalDebts,
     totalInvestments,
@@ -189,14 +187,14 @@ export function OverviewPageContent() {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard label="Total monthly revenue" value={monthlyRevenue} tone="positive" icon={ArrowUpRight} />
-        <SummaryCard label="Total monthly expenses" value={monthlyExpenses} tone="negative" icon={ArrowDownRight} />
         <SummaryCard
-          label="Monthly surplus / deficit"
-          value={surplus}
-          tone={surplus >= 0 ? "positive" : "negative"}
-          helper={surplus >= 0 ? "Cash-positive month" : "Review spending in Budget"}
-          icon={Scale}
+          label="Total investments"
+          value={totalInvestments}
+          tone="accent"
+          helper={investmentsHelper}
+          icon={Landmark}
         />
+        <SummaryCard label="Total monthly expenses" value={monthlyExpenses} tone="negative" icon={ArrowDownRight} />
         <SummaryCard
           label="Savings rate"
           value={savingsRate}
@@ -206,15 +204,8 @@ export function OverviewPageContent() {
         />
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2">
         <SummaryCard label="Total debts" value={totalDebts} helper={debtsHelper} icon={CreditCard} />
-        <SummaryCard
-          label="Total investments"
-          value={totalInvestments}
-          tone="positive"
-          helper={investmentsHelper}
-          icon={Landmark}
-        />
         <SummaryCard
           label="Net cash flow"
           value={netCashFlow}
@@ -239,7 +230,7 @@ export function OverviewPageContent() {
               <ArrowUpRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.5} aria-hidden />
               AED {monthlyRevenue.toLocaleString()}
             </span>
-            <span className="flex items-center gap-2 text-rose-300">
+            <span className="flex items-center gap-2 text-rose-500 mf-light:text-rose-800">
               <ArrowDownRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.5} aria-hidden />
               AED {monthlyExpenses.toLocaleString()}
             </span>
@@ -247,7 +238,7 @@ export function OverviewPageContent() {
           <div className="h-3 overflow-hidden rounded-full bg-white/10">
             <div className="flex h-full">
               <div className="bg-emerald-400/85" style={{ width: `${revenueShare}%` }} />
-              <div className="bg-rose-400/85" style={{ width: `${expenseShare}%` }} />
+              <div className="mf-expense-fill h-full" style={{ width: `${expenseShare}%` }} />
             </div>
           </div>
           <p className="mt-3 text-xs text-slate-400">Bar width reflects relative scale of revenue and expenses.</p>

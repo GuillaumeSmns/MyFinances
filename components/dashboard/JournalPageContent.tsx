@@ -1,10 +1,27 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, startTransition } from "react";
-import { FinanceSection } from "@/components/dashboard/FinanceSection";
+import { AddCategoryCard } from "@/components/dashboard/budget/AddCategoryCard";
+import { BudgetSortableCategoryList } from "@/components/dashboard/budget/BudgetSortableCategoryList";
+import { BudgetTabs } from "@/components/dashboard/budget/BudgetTabs";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { VisualizationPanel } from "@/components/dashboard/VisualizationPanel";
-import type { FinanceItem, SectionTotal } from "@/components/dashboard/types";
+import {
+  addItem,
+  computeBudgetTotals,
+  createCategory,
+  deleteCategoryFromList,
+  deleteItem,
+  getTabCategories,
+  insertCategory,
+  setTabCategories,
+  updateCategoryInList,
+  updateItemAmount,
+  updateItemLabel,
+  type BudgetCategory,
+  type BudgetTabId,
+  type JournalMonthSnapshot,
+} from "@/lib/budget-model";
 import {
   createJournalSnapshotForNewMonth,
   deleteJournalMonth,
@@ -16,9 +33,8 @@ import {
   monthKeyFromDate,
   parseMonthKey,
   saveJournalMonth,
-  type JournalMonthSnapshot,
 } from "@/lib/journal-storage";
-import { computeJournalOverviewMetrics } from "@/lib/journal-overview";
+import { buildCategoryBreakdown, computeJournalOverviewMetrics } from "@/lib/journal-overview";
 import { ArchiveMonthCard } from "@/components/dashboard/ArchiveMonthCard";
 import { JournalMonthPickerModal } from "@/components/dashboard/JournalMonthPickerModal";
 import { JournalMonthSelectorCenter } from "@/components/dashboard/JournalMonthSelectorCenter";
@@ -26,37 +42,16 @@ import {
   Archive,
   ArrowDownRight,
   ArrowUpRight,
-  Building2,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  CreditCard,
-  Home,
   Landmark,
   NotebookPen,
-  Percent,
   Save,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { IconBox } from "@/components/dashboard/IconBox";
-
-const makeId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-const sumItems = (items: FinanceItem[]) => items.reduce((acc, item) => acc + item.amount, 0);
-
-const updateItemAmount = (items: FinanceItem[], id: string, amount: number) =>
-  items.map((item) => (item.id === id ? { ...item, amount: Number.isFinite(amount) ? amount : 0 } : item));
-
-const updateItemLabel = (items: FinanceItem[], id: string, label: string) =>
-  items.map((item) => (item.id === id ? { ...item, label: label.trim() === "" ? item.label : label.trim() } : item));
-
-const addItem = (items: FinanceItem[], label: string, amount: number) => [
-  ...items,
-  { id: makeId(), label, amount },
-];
-
-const deleteItem = (items: FinanceItem[], id: string) => items.filter((item) => item.id !== id);
 
 function isCurrentMonth(key: string): boolean {
   return key === monthKeyFromDate(new Date());
@@ -74,14 +69,20 @@ function tryChangeMonth(
   return true;
 }
 
+function confirmDeleteCategory(title: string): boolean {
+  return window.confirm(
+    `Delete category "${title}" and all its lines? This cannot be undone.`,
+  );
+}
+
 export function JournalPageContent() {
   const [monthKey, setMonthKey] = useState(() => monthKeyFromDate(new Date()));
   const [snap, setSnap] = useState<JournalMonthSnapshot>(() => getDefaultJournalSnapshot());
+  const [activeTab, setActiveTab] = useState<BudgetTabId>("revenues");
   const [lastPersistedSerialized, setLastPersistedSerialized] = useState(
     () => JSON.stringify(getDefaultJournalSnapshot()),
   );
   const [hasSavedCopyOnDisk, setHasSavedCopyOnDisk] = useState(false);
-  /** After first client read of localStorage for this monthKey; avoids SSR vs client markup drift. */
   const [localStorageHydrated, setLocalStorageHydrated] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [storageRevision, setStorageRevision] = useState(0);
@@ -101,48 +102,16 @@ export function JournalPageContent() {
   const currentSerialized = JSON.stringify(snap);
   const dirty = currentSerialized !== lastPersistedSerialized;
 
-  const revenueTotals = useMemo(
-    () => ({
-      pilot: sumItems(snap.pilotRevenue),
-      financial: sumItems(snap.financialRevenue),
-      immo: sumItems(snap.immoRevenue),
-    }),
-    [snap.pilotRevenue, snap.financialRevenue, snap.immoRevenue],
+  const { totalRevenues, totalInvestments, totalExpenses, surplus } = useMemo(
+    () => computeBudgetTotals(snap),
+    [snap],
   );
 
-  const expenseTotals = useMemo(
-    () => ({
-      pilot: sumItems(snap.pilotExpense),
-      loans: sumItems(snap.loanExpense),
-      everyday: sumItems(snap.everydayExpense),
-      home: sumItems(snap.homeCharges),
-      investments: sumItems(snap.investments),
-    }),
-    [snap.pilotExpense, snap.loanExpense, snap.everydayExpense, snap.homeCharges, snap.investments],
-  );
+  const activeCategories = snap[activeTab];
 
-  const totalRevenue = revenueTotals.pilot + revenueTotals.financial + revenueTotals.immo;
-  const totalExpense =
-    expenseTotals.pilot +
-    expenseTotals.loans +
-    expenseTotals.everyday +
-    expenseTotals.home +
-    expenseTotals.investments;
-  const difference = totalRevenue - totalExpense;
-
-  const revenueBreakdown: SectionTotal[] = [
-    { name: "Salary / Pilot Revenue", total: revenueTotals.pilot },
-    { name: "Financial Revenue", total: revenueTotals.financial },
-    { name: "Immo", total: revenueTotals.immo },
-  ];
-
-  const expenseBreakdown: SectionTotal[] = [
-    { name: "Salary deductions / Pilot Expenses", total: expenseTotals.pilot },
-    { name: "Loan", total: expenseTotals.loans },
-    { name: "Everyday Expenses", total: expenseTotals.everyday },
-    { name: "Home Charges", total: expenseTotals.home },
-    { name: "Investments", total: expenseTotals.investments },
-  ];
+  const revenueBreakdown = useMemo(() => buildCategoryBreakdown(snap.revenues), [snap.revenues]);
+  const investmentBreakdown = useMemo(() => buildCategoryBreakdown(snap.investments), [snap.investments]);
+  const expenseBreakdown = useMemo(() => buildCategoryBreakdown(snap.expenses), [snap.expenses]);
 
   const savedSummaries = useMemo(() => {
     if (!localStorageHydrated) return [];
@@ -161,6 +130,36 @@ export function JournalPageContent() {
       })
       .filter((row): row is { key: string; revenue: number; expenses: number; surplus: number } => row !== null);
   }, [storageRevision, localStorageHydrated]);
+
+  const patchCategory = useCallback(
+    (categoryId: string, updater: (cat: BudgetCategory) => BudgetCategory) => {
+      setSnap((s) =>
+        setTabCategories(s, activeTab, updateCategoryInList(s[activeTab], categoryId, updater)),
+      );
+    },
+    [activeTab],
+  );
+
+  const handleAddCategory = useCallback(
+    (afterIndex?: number) => {
+      setSnap((s) => {
+        const current = getTabCategories(s, activeTab);
+        return setTabCategories(s, activeTab, insertCategory(current, createCategory(), afterIndex));
+      });
+    },
+    [activeTab],
+  );
+
+  const handleDeleteCategory = useCallback(
+    (categoryId: string) => {
+      const cat = snap[activeTab].find((c) => c.id === categoryId);
+      if (!cat || !confirmDeleteCategory(cat.title)) return;
+      setSnap((s) =>
+        setTabCategories(s, activeTab, deleteCategoryFromList(s[activeTab], categoryId)),
+      );
+    },
+    [activeTab, snap],
+  );
 
   const handleSave = useCallback(() => {
     saveJournalMonth(monthKey, snap);
@@ -313,12 +312,12 @@ export function JournalPageContent() {
           </div>
           <div className="flex justify-center">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-slate-200">
-              {difference >= 0 ? (
+              {surplus >= 0 ? (
                 <TrendingUp className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={1.5} aria-hidden />
               ) : (
                 <TrendingDown className="h-4 w-4 shrink-0 text-rose-400" strokeWidth={1.5} aria-hidden />
               )}
-              {difference >= 0 ? "Surplus" : "Deficit"}: AED {Math.abs(difference).toLocaleString()}
+              {surplus >= 0 ? "Cashflow" : "Deficit"}: AED {Math.abs(surplus).toLocaleString()}
             </p>
           </div>
 
@@ -351,221 +350,74 @@ export function JournalPageContent() {
       </header>
 
       <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard label="Total Revenues" value={totalRevenues} tone="positive" icon={ArrowUpRight} />
+        <SummaryCard label="Total Investments" value={totalInvestments} tone="accent" icon={Landmark} />
+        <SummaryCard label="Total Expenses" value={totalExpenses} tone="negative" icon={ArrowDownRight} />
         <SummaryCard
-          label="Total Revenues"
-          value={totalRevenue}
-          tone="positive"
-          icon={ArrowUpRight}
-        />
-        <SummaryCard
-          label="Total Expenses"
-          value={totalExpense}
-          tone="negative"
-          icon={ArrowDownRight}
-        />
-        <SummaryCard
-          label="Cash Flow Difference"
-          value={difference}
-          tone={difference >= 0 ? "positive" : "negative"}
-          helper={difference >= 0 ? "Positive monthly cash flow" : "Expenses exceed revenues"}
-          icon={difference >= 0 ? TrendingUp : TrendingDown}
-        />
-        <SummaryCard
-          label="Savings Ratio"
-          value={totalRevenue > 0 ? Math.round((difference / totalRevenue) * 100) : 0}
-          format="percent"
-          helper="Difference as % of total revenue"
-          icon={Percent}
+          label={surplus >= 0 ? "Cashflow" : "Deficit"}
+          value={Math.abs(surplus)}
+          tone={surplus >= 0 ? "positive" : "negative"}
+          helper="Revenues minus expenses (investments excluded)"
+          icon={surplus >= 0 ? TrendingUp : TrendingDown}
         />
       </section>
 
-      <section className="mb-6 grid gap-6 xl:grid-cols-2">
-        <div className="space-y-6">
-          <h2 className="flex items-center gap-2 text-xl font-semibold text-white mf-light:text-slate-900">
-            <ArrowUpRight className="h-5 w-5 shrink-0 text-emerald-400/90" strokeWidth={1.5} aria-hidden />
-            Revenue
-          </h2>
-          <FinanceSection
-            title="Salary"
-            subtitle="Add and manage salary items"
-            sectionIcon={
-              <IconBox>
-                <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-            }
-            items={snap.pilotRevenue}
-            total={revenueTotals.pilot}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, pilotRevenue: updateItemAmount(s.pilotRevenue, id, value) }))
-            }
-            onLabelChange={(id, label) =>
-              setSnap((s) => ({ ...s, pilotRevenue: updateItemLabel(s.pilotRevenue, id, label) }))
-            }
-            onDeleteItem={(id) => setSnap((s) => ({ ...s, pilotRevenue: deleteItem(s.pilotRevenue, id) }))}
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, pilotRevenue: addItem(s.pilotRevenue, label, amount) }))
-            }
-            addButtonLabel="Add Salary item"
-          />
-          <FinanceSection
-            title="Financial Revenue"
-            subtitle="Add and manage custom finance revenue streams"
-            sectionIcon={
-              <IconBox>
-                <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-            }
-            items={snap.financialRevenue}
-            total={revenueTotals.financial}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, financialRevenue: updateItemAmount(s.financialRevenue, id, value) }))
-            }
-            onDeleteItem={(id) =>
-              setSnap((s) => ({ ...s, financialRevenue: deleteItem(s.financialRevenue, id) }))
-            }
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, financialRevenue: addItem(s.financialRevenue, label, amount) }))
-            }
-            addButtonLabel="Add Revenue"
-          />
-          <FinanceSection
-            title="Immo"
-            subtitle="Custom real estate revenue items"
-            sectionIcon={
-              <IconBox>
-                <Building2 className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-            }
-            items={snap.immoRevenue}
-            total={revenueTotals.immo}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, immoRevenue: updateItemAmount(s.immoRevenue, id, value) }))
-            }
-            onDeleteItem={(id) => setSnap((s) => ({ ...s, immoRevenue: deleteItem(s.immoRevenue, id) }))}
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, immoRevenue: addItem(s.immoRevenue, label, amount) }))
-            }
-            addButtonLabel="Add Immo Item"
-          />
-        </div>
+      <section className="mb-6 space-y-6">
+        <BudgetTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="space-y-6">
-          <h2 className="flex items-center gap-2 text-xl font-semibold text-white mf-light:text-slate-900">
-            <ArrowDownRight className="h-5 w-5 shrink-0 text-rose-400/90" strokeWidth={1.5} aria-hidden />
-            Expenses
-          </h2>
-          <FinanceSection
-            title="Salary deductions"
-            subtitle="Add and manage salary deductions"
-            sectionIcon={
-              <IconBox>
-                <ArrowDownRight className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
+        <div
+          key={activeTab}
+          role="tabpanel"
+          className="space-y-5 transition-opacity duration-200"
+        >
+          <BudgetSortableCategoryList
+            categories={activeCategories}
+            onReorder={(categories) =>
+              setSnap((s) => setTabCategories(s, activeTab, categories))
             }
-            items={snap.pilotExpense}
-            total={expenseTotals.pilot}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, pilotExpense: updateItemAmount(s.pilotExpense, id, value) }))
+            onTitleChange={(categoryId, title) =>
+              patchCategory(categoryId, (c) => ({ ...c, title }))
             }
-            onLabelChange={(id, label) =>
-              setSnap((s) => ({ ...s, pilotExpense: updateItemLabel(s.pilotExpense, id, label) }))
+            onAmountChange={(categoryId, itemId, amount) =>
+              patchCategory(categoryId, (c) => ({
+                ...c,
+                items: updateItemAmount(c.items, itemId, amount),
+              }))
             }
-            onDeleteItem={(id) => setSnap((s) => ({ ...s, pilotExpense: deleteItem(s.pilotExpense, id) }))}
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, pilotExpense: addItem(s.pilotExpense, label, amount) }))
+            onLabelChange={(categoryId, itemId, label) =>
+              patchCategory(categoryId, (c) => ({
+                ...c,
+                items: updateItemLabel(c.items, itemId, label),
+              }))
             }
-            addButtonLabel="Add deduction"
+            onDeleteItem={(categoryId, itemId) =>
+              patchCategory(categoryId, (c) => ({
+                ...c,
+                items: deleteItem(c.items, itemId),
+              }))
+            }
+            onAddLine={(categoryId) =>
+              patchCategory(categoryId, (c) => ({
+                ...c,
+                items: addItem(c.items, "New line", 0),
+              }))
+            }
+            onDeleteCategory={handleDeleteCategory}
+            onAddCategoryAfter={handleAddCategory}
           />
-          <FinanceSection
-            title="Loan"
-            subtitle="Custom loan items with editable amount"
-            sectionIcon={
-              <IconBox>
-                <CreditCard className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-            }
-            items={snap.loanExpense}
-            total={expenseTotals.loans}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, loanExpense: updateItemAmount(s.loanExpense, id, value) }))
-            }
-            onDeleteItem={(id) => setSnap((s) => ({ ...s, loanExpense: deleteItem(s.loanExpense, id) }))}
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, loanExpense: addItem(s.loanExpense, label, amount) }))
-            }
-            addButtonLabel="Add Loan"
-          />
-          <FinanceSection
-            title="Everyday Expenses"
-            subtitle="Add recurring and variable daily costs"
-            sectionIcon={
-              <IconBox>
-                <ArrowDownRight className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-            }
-            items={snap.everydayExpense}
-            total={expenseTotals.everyday}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, everydayExpense: updateItemAmount(s.everydayExpense, id, value) }))
-            }
-            onDeleteItem={(id) =>
-              setSnap((s) => ({ ...s, everydayExpense: deleteItem(s.everydayExpense, id) }))
-            }
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, everydayExpense: addItem(s.everydayExpense, label, amount) }))
-            }
-            addButtonLabel="Add Expense"
-          />
-          <FinanceSection
-            title="Home Charges"
-            subtitle="Add and manage household charges"
-            sectionIcon={
-              <IconBox>
-                <Home className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-            }
-            items={snap.homeCharges}
-            total={expenseTotals.home}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, homeCharges: updateItemAmount(s.homeCharges, id, value) }))
-            }
-            onLabelChange={(id, label) =>
-              setSnap((s) => ({ ...s, homeCharges: updateItemLabel(s.homeCharges, id, label) }))
-            }
-            onDeleteItem={(id) => setSnap((s) => ({ ...s, homeCharges: deleteItem(s.homeCharges, id) }))}
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, homeCharges: addItem(s.homeCharges, label, amount) }))
-            }
-            addButtonLabel="Add Home charge"
-          />
-          <FinanceSection
-            title="Investments"
-            subtitle="User-defined monthly investment allocations"
-            sectionIcon={
-              <IconBox>
-                <Landmark className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-            }
-            items={snap.investments}
-            total={expenseTotals.investments}
-            onAmountChange={(id, value) =>
-              setSnap((s) => ({ ...s, investments: updateItemAmount(s.investments, id, value) }))
-            }
-            onDeleteItem={(id) => setSnap((s) => ({ ...s, investments: deleteItem(s.investments, id) }))}
-            onAddItem={(label, amount) =>
-              setSnap((s) => ({ ...s, investments: addItem(s.investments, label, amount) }))
-            }
-            addButtonLabel="Add Investment"
-          />
+
+          <AddCategoryCard onClick={() => handleAddCategory()} />
         </div>
       </section>
 
       <section>
         <VisualizationPanel
-          totalRevenue={totalRevenue}
-          totalExpense={totalExpense}
-          difference={difference}
+          totalRevenue={totalRevenues}
+          totalExpense={totalExpenses}
+          totalInvestments={totalInvestments}
+          difference={surplus}
           revenueSections={revenueBreakdown}
+          investmentSections={investmentBreakdown}
           expenseSections={expenseBreakdown}
         />
       </section>

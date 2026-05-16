@@ -55,10 +55,12 @@ export function ArchiveMonthCard({
           </div>
           <div className="flex items-baseline justify-between gap-2">
             <dt className="shrink-0 text-slate-500">Expenses</dt>
-            <dd className="truncate font-semibold tabular-nums text-rose-200/95">AED {compactAed(expenses)}</dd>
+            <dd className="truncate font-semibold tabular-nums mf-text-expense mf-light:text-rose-800">
+              AED {compactAed(expenses)}
+            </dd>
           </div>
           <div className="flex items-baseline justify-between gap-2">
-            <dt className="shrink-0 text-slate-500">{surplusPositive ? "Surplus" : "Deficit"}</dt>
+            <dt className="shrink-0 text-slate-500">{surplusPositive ? "Cashflow" : "Deficit"}</dt>
             <dd
               className={`truncate font-semibold tabular-nums ${surplusPositive ? "text-cyan-200" : "text-amber-200/95"}`}
             >
@@ -75,7 +77,7 @@ export function ArchiveMonthCard({
           e.stopPropagation();
           onDelete();
         }}
-        className="absolute right-1.5 top-1.5 z-20 flex h-7 w-7 items-center justify-center rounded border border-white/10 bg-slate-950/90 text-sm leading-none text-slate-500 transition hover:border-rose-300/45 hover:bg-rose-500/15 hover:text-rose-200 mf-light:border-slate-200 mf-light:bg-white mf-light:hover:border-rose-400/50 mf-light:hover:bg-rose-50"
+        className="absolute right-1.5 top-1.5 z-20 flex h-7 w-7 items-center justify-center rounded border border-white/10 bg-slate-950/90 text-sm leading-none text-slate-500 transition hover:border-white/20 hover:bg-white/10 hover:text-slate-200 mf-light:border-slate-200 mf-light:bg-white mf-light:hover:border-slate-300 mf-light:hover:bg-slate-200 mf-light:hover:text-slate-800"
       >
         ×
       </button>

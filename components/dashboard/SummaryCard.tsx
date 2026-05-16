@@ -4,7 +4,7 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 type SummaryCardProps = {
   label: string;
   value: number;
-  tone?: "neutral" | "positive" | "negative";
+  tone?: "neutral" | "positive" | "negative" | "accent";
   helper?: string;
   format?: "currency" | "percent";
   icon?: LucideIcon;
@@ -25,8 +25,10 @@ export function SummaryCard({
     tone === "positive"
       ? "text-emerald-300 mf-light:text-emerald-700"
       : tone === "negative"
-        ? "text-rose-300 mf-light:text-rose-700"
-        : "text-white mf-light:text-slate-900";
+        ? "text-rose-500 mf-light:text-rose-800"
+        : tone === "accent"
+          ? "mf-text-investment"
+          : "text-white mf-light:text-slate-900";
 
   return (
     <DashboardCard className="h-full">

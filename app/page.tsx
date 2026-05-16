@@ -177,7 +177,7 @@ function DashboardMockup() {
             </div>
             <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3 mf-light:border-slate-200 mf-light:bg-slate-100">
               <p className="text-xs text-slate-400 mf-light:text-slate-600">Expenses</p>
-              <p className="mt-1 text-base font-medium text-rose-300">$4,280</p>
+              <p className="mt-1 text-base font-medium mf-text-expense mf-light:text-rose-800">$4,280</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3 mf-light:border-slate-200 mf-light:bg-slate-100">
               <p className="text-xs text-slate-400 mf-light:text-slate-600">Net Monthly Result</p>
