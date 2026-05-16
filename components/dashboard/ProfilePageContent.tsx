@@ -35,8 +35,8 @@ export function ProfilePageContent({ profile }: { profile: ProfilePageModel }) {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-white mf-light:text-slate-900">Profile</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-400 mf-light:text-slate-600">
-            Account details and preferences. Profile fields will sync with Supabase when extended; theme is saved
-            locally in your browser.
+            Manage your account and workspace preferences. Review identity details, defaults, and security in one
+            place.
           </p>
         </div>
       </header>
@@ -60,15 +60,15 @@ export function ProfilePageContent({ profile }: { profile: ProfilePageModel }) {
 
         <DashboardCard title="Security" subtitle="Authentication and access">
           <p className="text-sm leading-relaxed text-slate-400 mf-light:text-slate-600">
-            Password changes, two-factor authentication, and active sessions will appear here. Supabase Auth manages
-            your credentials; no extra tables are required for basic email login.
+            Security and authentication settings for your account. Manage your password, two-factor authentication,
+            and active sessions to keep your financial workspace protected.
           </p>
         </DashboardCard>
 
         <DashboardCard title="App preferences" subtitle="Experience and notifications">
           <p className="text-sm leading-relaxed text-slate-400 mf-light:text-slate-600">
-            Notification channels, number format, and week start are placeholders for now. Connect these to your
-            profile record when you add a database schema.
+            Customize how MyFinances works for you—notification delivery, number formatting, and calendar defaults
+            for budgets and reports.
           </p>
         </DashboardCard>
 

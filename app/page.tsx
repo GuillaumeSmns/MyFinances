@@ -136,7 +136,7 @@ function DashboardMockup() {
         ))}
       </div>
       <div className="mt-6 grid gap-3 md:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4 mf-light:border-slate-200 mf-light:bg-slate-50">
+        <div className="landing-spending-trend rounded-xl border border-white/10 bg-slate-950/40 p-4 mf-light:border-slate-200 mf-light:bg-slate-50">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm font-medium text-white mf-light:text-slate-900">Spending Trend</p>
             <p className="text-xs text-slate-400 mf-light:text-slate-600">Year to date: $34,460</p>
@@ -155,7 +155,7 @@ function DashboardMockup() {
                   className="mf-chart-bar w-full rounded-t-md"
                   style={{ height: `${Math.round((point.amount / maxAmount) * 100)}%` }}
                 />
-                <span className="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 rounded-md border border-white/10 bg-slate-900/95 px-2 py-1 text-[10px] text-slate-200 group-hover:block">
+                <span className="landing-spending-trend-tooltip pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 rounded-md border bg-slate-900/95 px-2 py-1 text-[10px] text-slate-200 group-hover:block mf-light:bg-white mf-light:text-slate-800">
                   ${point.amount.toLocaleString()}
                 </span>
               </div>

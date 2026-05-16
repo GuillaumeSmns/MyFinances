@@ -254,9 +254,47 @@ body {
   opacity: 0.6;
 }
 
+/* Landing page Spending Trend bars — both DashboardMockup instances (app/page.tsx) */
+:root {
+  --mf-landing-spending-bar: #39bdf8;
+  --mf-landing-spending-bar-deep: #0284c7;
+  --mf-landing-spending-bar-glow: color-mix(in srgb, #39bdf8 32%, transparent);
+}
+
 .mf-chart-bar {
-  background: linear-gradient(to top, var(--mf-rose-400), var(--mf-expense));
-  box-shadow: 0 0 18px color-mix(in srgb, var(--mf-expense) 28%, transparent);
+  background: linear-gradient(
+    to top,
+    var(--mf-landing-spending-bar-deep),
+    var(--mf-landing-spending-bar)
+  );
+  box-shadow: 0 0 18px var(--mf-landing-spending-bar-glow);
+  transition:
+    box-shadow 0.3s ease,
+    filter 0.3s ease;
+}
+
+.group:hover .mf-chart-bar {
+  box-shadow: 0 0 26px color-mix(in srgb, var(--mf-landing-spending-bar) 48%, transparent);
+  filter: brightness(1.08);
+}
+
+.mf-light .mf-chart-bar {
+  background: linear-gradient(to top, #0ea5e9, var(--mf-landing-spending-bar));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--mf-landing-spending-bar) 22%, transparent);
+}
+
+.mf-light .group:hover .mf-chart-bar {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--mf-landing-spending-bar) 36%, transparent);
+}
+
+.landing-spending-trend-tooltip {
+  border-color: color-mix(in srgb, var(--mf-landing-spending-bar) 28%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--mf-landing-spending-bar) 18%, transparent);
+}
+
+.landing-spending-trend .group:hover .landing-spending-trend-tooltip {
+  border-color: color-mix(in srgb, var(--mf-landing-spending-bar) 45%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--mf-landing-spending-bar) 28%, transparent);
 }
 
 .mf-expense-fill {

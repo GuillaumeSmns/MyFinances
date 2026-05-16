@@ -32,8 +32,8 @@ export default async function ProfilePage() {
     email,
     accountStatus: user ? "Active" : "Not signed in",
     memberSince: user ? formatMemberSince(user.created_at) : "—",
-    preferredCurrency: "AED (placeholder)",
-    defaultMonthView: "Current month (placeholder)",
+    preferredCurrency: "AED",
+    defaultMonthView: "Current month",
   };
 
   return <ProfilePageContent profile={profile} />;

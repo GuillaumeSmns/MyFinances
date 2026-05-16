@@ -13,6 +13,7 @@ import {
   LineChart,
   Percent,
   PieChart,
+  Scale,
   Wallet,
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -130,6 +131,7 @@ export function OverviewPageContent() {
   const {
     monthlyRevenue,
     monthlyExpenses,
+    surplus,
     savingsRate,
     totalDebts,
     totalInvestments,
@@ -196,15 +198,15 @@ export function OverviewPageContent() {
         />
         <SummaryCard label="Total monthly expenses" value={monthlyExpenses} tone="negative" icon={ArrowDownRight} />
         <SummaryCard
-          label="Savings rate"
-          value={savingsRate}
-          format="percent"
-          helper="Of after-tax inflows"
-          icon={Percent}
+          label="Monthly surplus / deficit"
+          value={surplus}
+          tone={surplus >= 0 ? "positive" : "negative"}
+          helper={surplus >= 0 ? "Cash-positive month" : "Review spending in Budget"}
+          icon={Scale}
         />
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-3">
         <SummaryCard label="Total debts" value={totalDebts} helper={debtsHelper} icon={CreditCard} />
         <SummaryCard
           label="Net cash flow"
@@ -212,6 +214,13 @@ export function OverviewPageContent() {
           tone={netCashFlow >= 0 ? "positive" : "negative"}
           helper={netCashHelper}
           icon={Wallet}
+        />
+        <SummaryCard
+          label="Savings rate"
+          value={savingsRate}
+          format="percent"
+          helper="Of after-tax inflows"
+          icon={Percent}
         />
       </section>
 
