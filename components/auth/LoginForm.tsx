@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AuthFormCard } from "@/components/auth/AuthFormCard";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { clearProfilePreferencesCache } from "@/lib/profile-preferences";
 import { createClient } from "@/utils/supabase/client";
 
 export function LoginForm() {
@@ -26,6 +27,7 @@ export function LoginForm() {
       e.preventDefault();
       setError(null);
       setLoading(true);
+      clearProfilePreferencesCache();
       const form = e.currentTarget;
       const fd = new FormData(form);
       const email = String(fd.get("email") ?? "").trim();

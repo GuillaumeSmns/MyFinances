@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSyncExternalStore } from "react";
-import { Check, Palette, UserCircle } from "lucide-react";
+import { AlertCircle, Check, Loader2, Palette, UserCircle } from "lucide-react";
 import { CurrencySelect } from "@/components/dashboard/profile/CurrencySelect";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { IconBox } from "@/components/dashboard/IconBox";
 import { ThemeToggleControl } from "@/components/theme/ThemeToggleControl";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import { DEFAULT_PREFERRED_CURRENCY, type PreferredCurrency } from "@/lib/currency";
 import {
   DEFAULT_ASSETS_DISPLAY_CURRENCY,
@@ -18,9 +19,16 @@ import {
   getPreferredCurrency,
   PROFILE_PREFERENCES_CHANGE_EVENT,
   PROFILE_PREFERENCES_STORAGE_KEY,
-  readProfilePreferences,
   writeProfilePreferences,
 } from "@/lib/profile-preferences";
+import {
+  applyUserProfileToClient,
+  ensureUserProfile,
+  toSyncedProfile,
+  updateUserProfile,
+  type SyncedProfile,
+} from "@/lib/user-profile";
+import { createClient } from "@/utils/supabase/client";
 
 export type ProfilePageAccount = {
   email: string;
@@ -55,15 +63,25 @@ function subscribeToProfilePreferences(onStoreChange: () => void) {
   };
 }
 
-function readDisplayName(fallbackDisplayName: string): string {
-  return readProfilePreferences()?.displayName ?? fallbackDisplayName;
-}
+type ProfileLoadState = "idle" | "loading" | "ready" | "error";
 
-export function ProfilePageContent({ account }: { account: ProfilePageAccount }) {
+export function ProfilePageContent({
+  account,
+  userId,
+}: {
+  account: ProfilePageAccount;
+  userId: string | null;
+}) {
+  const { theme: currentTheme } = useTheme();
+  const [syncedProfile, setSyncedProfile] = useState<SyncedProfile | null>(null);
+  const [loadState, setLoadState] = useState<ProfileLoadState>(() => (userId ? "loading" : "ready"));
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [draftName, setDraftName] = useState<string | null>(null);
   const [draftCurrency, setDraftCurrency] = useState<PreferredCurrency | null>(null);
   const [draftAssetsCurrency, setDraftAssetsCurrency] = useState<PreferredCurrency | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const subscribeWithDraftReset = useCallback(
     (onStoreChange: () => void) =>
@@ -76,21 +94,18 @@ export function ProfilePageContent({ account }: { account: ProfilePageAccount })
     [],
   );
 
-  const savedDisplayName = useSyncExternalStore(
-    subscribeWithDraftReset,
-    () => readDisplayName(account.fallbackDisplayName),
-    () => account.fallbackDisplayName,
-  );
+  const savedDisplayName =
+    syncedProfile?.displayName ?? account.fallbackDisplayName;
 
   const savedCurrency = useSyncExternalStore(
     subscribeWithDraftReset,
-    getPreferredCurrency,
+    () => syncedProfile?.budgetCurrency ?? getPreferredCurrency(),
     () => DEFAULT_PREFERRED_CURRENCY,
   );
 
   const savedAssetsCurrency = useSyncExternalStore(
     subscribeWithDraftReset,
-    getAssetsDisplayCurrency,
+    () => syncedProfile?.assetsCurrency ?? getAssetsDisplayCurrency(),
     () => DEFAULT_ASSETS_DISPLAY_CURRENCY,
   );
 
@@ -99,27 +114,88 @@ export function ProfilePageContent({ account }: { account: ProfilePageAccount })
   const assetsDisplayCurrency = draftAssetsCurrency ?? savedAssetsCurrency;
 
   useEffect(() => {
+    const uid = userId;
+    if (!uid) return;
+
+    let cancelled = false;
+
+    async function loadProfile(forUserId: string) {
+      setSyncedProfile(null);
+      setDraftName(null);
+      setDraftCurrency(null);
+      setDraftAssetsCurrency(null);
+      setLoadError(null);
+      setLoadState("loading");
+      try {
+        const supabase = createClient();
+        const row = await ensureUserProfile(supabase, forUserId, account.fallbackDisplayName);
+        if (cancelled) return;
+        applyUserProfileToClient(row);
+        setSyncedProfile(toSyncedProfile(row));
+        setLoadState("ready");
+      } catch (err) {
+        if (cancelled) return;
+        setLoadError(err instanceof Error ? err.message : "Could not load profile.");
+        setLoadState("error");
+      }
+    }
+
+    void loadProfile(uid);
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, account.fallbackDisplayName]);
+
+  useEffect(() => {
     if (!saved) return;
     const timer = window.setTimeout(() => setSaved(false), 3200);
     return () => window.clearTimeout(timer);
   }, [saved]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = displayName.trim();
-    if (!trimmed) return;
-    writeProfilePreferences({ displayName: trimmed, preferredCurrency });
-    setAssetsDisplayCurrency(assetsDisplayCurrency);
-    setDraftName(null);
-    setDraftCurrency(null);
-    setDraftAssetsCurrency(null);
-    setSaved(true);
+    if (!trimmed || !userId || !syncedProfile) return;
+
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      const supabase = createClient();
+      const row = await updateUserProfile(supabase, userId, {
+        display_name: trimmed,
+        budget_currency: preferredCurrency,
+        assets_currency: assetsDisplayCurrency,
+        theme: currentTheme,
+      });
+      applyUserProfileToClient(row);
+      setSyncedProfile(toSyncedProfile(row));
+      setDraftName(null);
+      setDraftCurrency(null);
+      setDraftAssetsCurrency(null);
+      setSaved(true);
+    } catch (err) {
+      writeProfilePreferences({ displayName: trimmed, preferredCurrency });
+      setAssetsDisplayCurrency(assetsDisplayCurrency);
+      setSaveError(
+        err instanceof Error
+          ? `${err.message} Preferences were saved locally only.`
+          : "Could not save to the server. Preferences were saved locally only.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const isDirty =
-    displayName.trim() !== savedDisplayName.trim() ||
-    preferredCurrency !== savedCurrency ||
-    assetsDisplayCurrency !== savedAssetsCurrency;
+    loadState === "ready" &&
+    syncedProfile !== null &&
+    (displayName.trim() !== syncedProfile.displayName.trim() ||
+      preferredCurrency !== syncedProfile.budgetCurrency ||
+      assetsDisplayCurrency !== syncedProfile.assetsCurrency ||
+      currentTheme !== syncedProfile.theme);
+
+  const formDisabled = loadState === "loading" || saving || syncedProfile === null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -132,8 +208,24 @@ export function ProfilePageContent({ account }: { account: ProfilePageAccount })
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Manage your account and workspace preferences in one place.
           </p>
+          {loadState === "loading" && (
+            <p className="mt-2 inline-flex items-center gap-2 text-xs text-faint">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+              Syncing preferences…
+            </p>
+          )}
         </div>
       </header>
+
+      {loadError && (
+        <p
+          className="inline-flex items-center gap-2 rounded-lg border border-amber-300/20 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-100/95"
+          role="alert"
+        >
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
+          {loadError}
+        </p>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <DashboardCard title="Account" subtitle="Identity and plan status">
@@ -149,6 +241,7 @@ export function ProfilePageContent({ account }: { account: ProfilePageAccount })
                   autoComplete="name"
                   required
                   maxLength={80}
+                  disabled={formDisabled}
                   className={inputClass}
                 />
               </dd>
@@ -216,10 +309,11 @@ export function ProfilePageContent({ account }: { account: ProfilePageAccount })
       <div className="flex flex-wrap items-center gap-3 border-t border-border pt-6">
         <button
           type="submit"
-          disabled={!isDirty && !saved}
-          className="mf-btn-primary rounded-xl px-5 py-2.5 text-sm font-medium transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={formDisabled || (!isDirty && !saved)}
+          className="mf-btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Save changes
+          {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+          {saving ? "Saving…" : "Save changes"}
         </button>
         {saved && (
           <p
@@ -227,7 +321,13 @@ export function ProfilePageContent({ account }: { account: ProfilePageAccount })
             role="status"
           >
             <Check className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
-            Preferences saved
+            Profile saved
+          </p>
+        )}
+        {saveError && (
+          <p className="inline-flex items-center gap-1.5 text-sm text-amber-200/95" role="alert">
+            <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
+            {saveError}
           </p>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { clearProfilePreferencesCache } from "@/lib/profile-preferences";
 import { createClient } from "@/utils/supabase/client";
 
 type DashboardLogoutButtonProps = {
@@ -28,6 +29,7 @@ export function DashboardLogoutButton({ variant = "sidebar" }: DashboardLogoutBu
       onClick={async () => {
         setBusy(true);
         const supabase = createClient();
+        clearProfilePreferencesCache();
         await supabase.auth.signOut();
         setBusy(false);
         router.replace("/");

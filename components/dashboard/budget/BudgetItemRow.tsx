@@ -21,6 +21,7 @@ export function BudgetItemRow({ item, onAmountChange, onLabelChange, onDelete }:
         type="text"
         value={item.label}
         onChange={(e) => onLabelChange(item.id, e.target.value)}
+        placeholder="Line label"
         aria-label="Line label"
         className="w-full min-w-0 border-0 bg-transparent text-sm text-slate-100 outline-none placeholder:text-faint focus:ring-0 mf-light:text-slate-900"
       />

@@ -3,9 +3,10 @@
 import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
+import { useIsClient } from "@/components/hooks/useIsClient";
 
 export type CategoryDragHandleProps = {
-  attributes: DraggableAttributes;
+  attributes: Partial<DraggableAttributes>;
   listeners: SyntheticListenerMap | undefined;
 };
 
@@ -20,6 +21,8 @@ export function FloatingCategoryControls({
   onDelete,
   onAddAfter,
 }: FloatingCategoryControlsProps) {
+  const mounted = useIsClient();
+
   return (
     <div
       className="pointer-events-none absolute -right-11 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-1.5 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"
@@ -29,8 +32,8 @@ export function FloatingCategoryControls({
         title="Drag to reorder"
         aria-label="Drag to reorder category"
         className="pointer-events-auto flex h-8 w-8 cursor-grab items-center justify-center rounded-lg border border-white/12 bg-slate-900/95 text-slate-400 shadow-lg backdrop-blur transition hover:border-cyan-300/35 hover:text-cyan-200 active:cursor-grabbing active:border-cyan-300/50 mf-light:border-slate-200 mf-light:bg-white mf-light:hover:text-slate-700 touch-none"
-        {...dragHandle.attributes}
-        {...dragHandle.listeners}
+        {...(mounted ? dragHandle.attributes : {})}
+        {...(mounted ? dragHandle.listeners : {})}
       >
         <GripVertical className="h-4 w-4" strokeWidth={1.5} aria-hidden />
       </button>

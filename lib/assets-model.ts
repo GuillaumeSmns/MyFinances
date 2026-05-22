@@ -1,5 +1,5 @@
 import type { PreferredCurrency } from "@/lib/currency";
-import { PREFERRED_CURRENCIES } from "@/lib/currency";
+import { isPreferredCurrency, PREFERRED_CURRENCIES } from "@/lib/currency";
 import { convertCurrencyAmount } from "@/lib/currency-conversion";
 import { DEFAULT_ASSETS_DISPLAY_CURRENCY } from "@/lib/assets-preferences";
 
@@ -9,8 +9,8 @@ export type AssetLiquidityTier = "liquid" | "semi-liquid" | "illiquid";
 
 export type AssetItem = {
   id: string;
-  label: string;
-  amount: number;
+  name: string;
+  value: number;
   currency: AssetCurrency;
   country?: string;
   notes?: string;
@@ -26,7 +26,7 @@ export type AssetCategoryTemplateId =
 
 export type AssetCategory = {
   id: string;
-  title: string;
+  name: string;
   templateId?: AssetCategoryTemplateId;
   isCustom?: boolean;
   items: AssetItem[];
@@ -104,29 +104,74 @@ const ALLOCATION_COLORS = [
 ];
 
 export function makeAssetId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+/** Default category shells for first-time Supabase users (no sample items). */
+export const DEFAULT_ASSET_CATEGORY_SEEDS: ReadonlyArray<{
+  name: string;
+  templateId: AssetCategoryTemplateId;
+}> = [
+  { name: "Cash & Bank Accounts", templateId: "cash" },
+  { name: "ETFs & Stocks", templateId: "etfs" },
+  { name: "Real Estate", templateId: "real-estate" },
+  { name: "Pension / Retirement Accounts", templateId: "pension" },
+  { name: "Crypto", templateId: "crypto" },
+  { name: "Other Assets", templateId: "other" },
+];
+
+export function inferTemplateIdFromCategoryName(
+  name: string,
+): AssetCategoryTemplateId | undefined {
+  const normalized = name.trim().toLowerCase();
+  const seed = DEFAULT_ASSET_CATEGORY_SEEDS.find((s) => s.name.toLowerCase() === normalized);
+  if (seed) return seed.templateId;
+  if (normalized.includes("real estate") || normalized.includes("property")) return "real-estate";
+  if (normalized.includes("cash") || normalized.includes("bank")) return "cash";
+  if (normalized.includes("etf") || normalized.includes("stock")) return "etfs";
+  if (normalized.includes("crypto")) return "crypto";
+  if (normalized.includes("pension") || normalized.includes("retirement")) return "pension";
+  return undefined;
+}
+
+export function getEmptyDefaultCategories(): AssetCategory[] {
+  return DEFAULT_ASSET_CATEGORY_SEEDS.map(({ name, templateId }) => ({
+    id: makeAssetId(),
+    name,
+    templateId,
+    isCustom: false,
+    items: [],
+  }));
+}
+
+/** Empty patrimony — categories are created in Supabase for logged-in users. */
+export function getEmptyAssetsSnapshot(): AssetsSnapshot {
+  return { categories: [] };
 }
 
 export function getCategoryLiquidity(category: AssetCategory): AssetLiquidityTier {
   if (category.templateId) return TEMPLATE_LIQUIDITY[category.templateId];
-  const title = category.title.toLowerCase();
-  if (title.includes("real estate") || title.includes("property")) return "illiquid";
-  if (title.includes("cash") || title.includes("bank") || title.includes("etf") || title.includes("stock"))
+  const name = category.name.toLowerCase();
+  if (name.includes("real estate") || name.includes("property")) return "illiquid";
+  if (name.includes("cash") || name.includes("bank") || name.includes("etf") || name.includes("stock"))
     return "liquid";
-  if (title.includes("crypto")) return "liquid";
-  if (title.includes("pension") || title.includes("retirement")) return "semi-liquid";
+  if (name.includes("crypto")) return "liquid";
+  if (name.includes("pension") || name.includes("retirement")) return "semi-liquid";
   return "semi-liquid";
 }
 
 export function isInvestmentsCategory(category: AssetCategory): boolean {
   if (category.templateId === "etfs" || category.templateId === "pension") return true;
-  const t = category.title.toLowerCase();
+  const t = category.name.toLowerCase();
   return t.includes("etf") || t.includes("stock") || t.includes("pension") || t.includes("retirement");
 }
 
 export function isRealEstateCategory(category: AssetCategory): boolean {
   if (category.templateId === "real-estate") return true;
-  const t = category.title.toLowerCase();
+  const t = category.name.toLowerCase();
   return t.includes("real estate") || t.includes("property");
 }
 
@@ -136,11 +181,11 @@ export function isLiquidCategory(category: AssetCategory): boolean {
 }
 
 export function sumItems(items: AssetItem[]): number {
-  return items.reduce((acc, item) => acc + (Number.isFinite(item.amount) ? item.amount : 0), 0);
+  return items.reduce((acc, item) => acc + (Number.isFinite(item.value) ? item.value : 0), 0);
 }
 
 export function convertItemAmount(item: AssetItem, displayCurrency: PreferredCurrency): number {
-  return convertCurrencyAmount(item.amount, item.currency, displayCurrency);
+  return convertCurrencyAmount(item.value, item.currency, displayCurrency);
 }
 
 export function sumItemsConverted(items: AssetItem[], displayCurrency: PreferredCurrency): number {
@@ -166,7 +211,7 @@ export function sumByCurrency(items: AssetItem[]): Record<AssetCurrency, number>
   const out: Record<AssetCurrency, number> = { USD: 0, EUR: 0, AED: 0 };
   for (const item of items) {
     if (PREFERRED_CURRENCIES.includes(item.currency)) {
-      out[item.currency] += Number.isFinite(item.amount) ? item.amount : 0;
+      out[item.currency] += Number.isFinite(item.value) ? item.value : 0;
     }
   }
   return out;
@@ -203,84 +248,95 @@ export function formatCurrencyBreakdown(totals: Record<AssetCurrency, number>): 
     .join(" · ");
 }
 
-function category(id: string, title: string, templateId: AssetCategoryTemplateId, items: AssetItem[] = []): AssetCategory {
-  return { id, title, templateId, isCustom: false, items };
+/** @deprecated Demo patrimony removed — use {@link getEmptyAssetsSnapshot}. */
+export function getDefaultAssetsSnapshot(): AssetsSnapshot {
+  return getEmptyAssetsSnapshot();
 }
 
-export function getDefaultAssetsSnapshot(): AssetsSnapshot {
+function readItemName(raw: Record<string, unknown>): string | null {
+  if (typeof raw.name === "string") return raw.name;
+  if (typeof raw.label === "string") return raw.label;
+  return null;
+}
+
+function readItemValue(raw: Record<string, unknown>): number | null {
+  if (typeof raw.value === "number" && Number.isFinite(raw.value)) return raw.value;
+  if (typeof raw.amount === "number" && Number.isFinite(raw.amount)) return raw.amount;
+  return null;
+}
+
+function readCategoryName(raw: Record<string, unknown>): string | null {
+  if (typeof raw.name === "string") return raw.name;
+  if (typeof raw.title === "string") return raw.title;
+  return null;
+}
+
+function normalizeItemFromRaw(raw: unknown): AssetItem | null {
+  if (!raw || typeof raw !== "object") return null;
+  const item = raw as Record<string, unknown>;
+  const id = typeof item.id === "string" ? item.id : null;
+  const name = readItemName(item);
+  const value = readItemValue(item);
+  const currency = item.currency;
+  if (!id || !name || value === null || !isPreferredCurrency(String(currency))) return null;
   return {
-    categories: [
-      category("cat-cash", "Cash & Bank Accounts", "cash", [
-        { id: makeAssetId(), label: "UAE current account", amount: 45_000, currency: "AED", country: "UAE" },
-        { id: makeAssetId(), label: "US savings", amount: 12_000, currency: "USD", country: "USA" },
-      ]),
-      category("cat-etfs", "ETFs & Stocks", "etfs", [
-        { id: makeAssetId(), label: "Global ETF portfolio", amount: 185_000, currency: "USD", country: "USA" },
-        { id: makeAssetId(), label: "EU equities", amount: 42_000, currency: "EUR", country: "France" },
-      ]),
-      category("cat-realestate", "Real Estate", "real-estate", [
-        { id: makeAssetId(), label: "Dubai apartment", amount: 850_000, currency: "AED", country: "UAE" },
-      ]),
-      category("cat-pension", "Pension / Retirement Accounts", "pension", [
-        { id: makeAssetId(), label: "Employer pension", amount: 78_000, currency: "EUR", country: "France" },
-      ]),
-      category("cat-crypto", "Crypto", "crypto", [
-        { id: makeAssetId(), label: "Cold wallet", amount: 18_500, currency: "USD" },
-      ]),
-      category("cat-other", "Other Assets", "other", [
-        { id: makeAssetId(), label: "Collectibles", amount: 9_000, currency: "EUR" },
-      ]),
-    ],
-    updatedAt: new Date().toISOString(),
+    id,
+    name: name.trim() || "Untitled asset",
+    value,
+    currency: currency as AssetCurrency,
+    country: typeof item.country === "string" ? item.country : "",
+    notes: typeof item.notes === "string" ? item.notes : "",
   };
 }
 
-function isValidItem(raw: unknown): raw is AssetItem {
-  if (!raw || typeof raw !== "object") return false;
-  const item = raw as AssetItem;
-  return (
-    typeof item.id === "string" &&
-    typeof item.label === "string" &&
-    typeof item.amount === "number" &&
-    PREFERRED_CURRENCIES.includes(item.currency as AssetCurrency)
-  );
-}
-
-function isValidCategory(raw: unknown): raw is AssetCategory {
-  if (!raw || typeof raw !== "object") return false;
-  const c = raw as AssetCategory;
-  return typeof c.id === "string" && typeof c.title === "string" && Array.isArray(c.items);
-}
-
-export function normalizeAssetsSnapshot(raw: unknown): AssetsSnapshot {
-  const defaults = getDefaultAssetsSnapshot();
-  if (!raw || typeof raw !== "object") return defaults;
-  const record = raw as Record<string, unknown>;
-  if (!Array.isArray(record.categories)) return defaults;
-
-  const categories = record.categories
-    .filter(isValidCategory)
-    .map((c) => ({
-      id: c.id,
-      title: c.title.trim() || "Untitled",
-      templateId: c.templateId,
-      isCustom: Boolean(c.isCustom),
-      items: c.items.filter(isValidItem).map((item) => ({
-        ...item,
-        label: item.label.trim() || "Untitled asset",
-        country: typeof item.country === "string" ? item.country : "",
-        notes: typeof item.notes === "string" ? item.notes : "",
-      })),
-    }));
-
+function normalizeCategoryFromRaw(raw: unknown): AssetCategory | null {
+  if (!raw || typeof raw !== "object") return null;
+  const c = raw as Record<string, unknown>;
+  const id = typeof c.id === "string" ? c.id : null;
+  const name = readCategoryName(c);
+  if (!id || !name || !Array.isArray(c.items)) return null;
+  const items = c.items
+    .map(normalizeItemFromRaw)
+    .filter((item): item is AssetItem => item !== null);
+  const categoryName = name.trim() || "Untitled";
   return {
-    categories: categories.length > 0 ? categories : defaults.categories,
+    id,
+    name: categoryName,
+    templateId:
+      (c.templateId as AssetCategoryTemplateId | undefined) ??
+      inferTemplateIdFromCategoryName(categoryName),
+    isCustom: Boolean(c.isCustom),
+    items,
+  };
+}
+
+function mapCategoriesFromRaw(categoriesRaw: unknown[]): AssetCategory[] {
+  return categoriesRaw
+    .map(normalizeCategoryFromRaw)
+    .filter((c): c is AssetCategory => c !== null);
+}
+
+/** Parse stored JSON without injecting demo defaults (for import). */
+export function parseAssetsSnapshot(raw: unknown): AssetsSnapshot | null {
+  if (!raw || typeof raw !== "object") return null;
+  const record = raw as Record<string, unknown>;
+  if (!Array.isArray(record.categories)) return null;
+  const categories = mapCategoriesFromRaw(record.categories);
+  if (categories.length === 0) return null;
+  return {
+    categories,
     updatedAt: typeof record.updatedAt === "string" ? record.updatedAt : undefined,
   };
 }
 
-export function createCategory(title = "New category"): AssetCategory {
-  return { id: makeAssetId(), title, isCustom: true, items: [] };
+export function normalizeAssetsSnapshot(raw: unknown): AssetsSnapshot {
+  const parsed = parseAssetsSnapshot(raw);
+  if (parsed) return parsed;
+  return getEmptyAssetsSnapshot();
+}
+
+export function createCategory(name = "New category"): AssetCategory {
+  return { id: makeAssetId(), name, isCustom: true, items: [] };
 }
 
 export function reorderCategoriesByIds(
@@ -322,8 +378,13 @@ export function insertCategory(
   return next;
 }
 
-export function addItem(items: AssetItem[], label = "New asset", amount = 0, currency: AssetCurrency = "USD"): AssetItem[] {
-  return [...items, { id: makeAssetId(), label, amount, currency, country: "", notes: "" }];
+export function addItem(
+  items: AssetItem[],
+  name = "New asset",
+  value = 0,
+  currency: AssetCurrency = "USD",
+): AssetItem[] {
+  return [...items, { id: makeAssetId(), name, value, currency, country: "", notes: "" }];
 }
 
 export function updateItem(
@@ -381,7 +442,7 @@ export function computeAssetsAnalytics(
     .map((cat) => {
       const value = sumCategoryConverted(cat, displayCurrency);
       return {
-        name: cat.title,
+        name: cat.name,
         value,
         percent: totalConverted > 0 ? (value / totalConverted) * 100 : 0,
       };
@@ -411,7 +472,10 @@ export function computeAssetsAnalytics(
   const maxCurrencyShare = Math.max(...byCurrency.map((b) => b.percent), 0);
   const currencyRiskScore = clampScore(maxCurrencyShare > 60 ? 40 + (maxCurrencyShare - 60) * 1.5 : maxCurrencyShare * 0.5);
 
-  const maxCategoryShare = Math.max(...categoryAllocation.map((s) => s.percent), 0);
+  const maxCategoryShare =
+    categoryAllocation.length > 0
+      ? Math.max(...categoryAllocation.map((s) => s.percent), 0)
+      : 0;
   const assetConcentrationScore = clampScore(
     maxCategoryShare > 50 ? 35 + (maxCategoryShare - 50) * 1.3 : maxCategoryShare * 0.6,
   );
@@ -420,7 +484,9 @@ export function computeAssetsAnalytics(
     liquidity.illiquidPercent > 50 ? 30 + (liquidity.illiquidPercent - 50) * 1.4 : liquidity.illiquidPercent * 0.5,
   );
 
-  const cryptoCat = snapshot.categories.find((c) => c.templateId === "crypto");
+  const cryptoCat = snapshot.categories.find(
+    (c) => c.templateId === "crypto" || inferTemplateIdFromCategoryName(c.name) === "crypto",
+  );
   const cryptoTotal = cryptoCat ? sumCategoryConverted(cryptoCat, displayCurrency) : 0;
   const cryptoPercent = totalConverted > 0 ? (cryptoTotal / totalConverted) * 100 : 0;
   const cryptoRiskScore = clampScore(cryptoPercent > 10 ? 25 + (cryptoPercent - 10) * 2.5 : cryptoPercent * 1.2);

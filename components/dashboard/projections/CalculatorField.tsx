@@ -30,22 +30,22 @@ export function CalculatorField({
           {label}
         </label>
         {labelTooltip && (
-          <span className="group relative inline-flex">
-            <Info
-              className="h-3.5 w-3.5 text-faint transition group-hover:text-muted-foreground"
-              strokeWidth={1.75}
-              aria-hidden
-            />
+          <button
+            type="button"
+            className="group/info relative inline-flex shrink-0 rounded-sm p-0.5 text-faint transition hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-investment/40"
+            aria-label={labelTooltip}
+          >
+            <Info className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
             <span
               role="tooltip"
-              className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-52 -translate-x-1/2 rounded-lg border border-border bg-card-solid px-3 py-2 text-center text-[11px] leading-snug text-secondary opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
+              className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 w-52 -translate-x-1/2 rounded-lg border border-border bg-card-solid px-3 py-2 text-center text-[11px] leading-snug text-secondary opacity-0 shadow-lg transition-opacity duration-150 group-hover/info:opacity-100 group-focus-visible/info:opacity-100"
             >
               {labelTooltip}
             </span>
-          </span>
+          </button>
         )}
       </div>
-      <div className="group relative flex items-stretch overflow-hidden rounded-xl border border-border bg-input transition focus-within:border-accent-investment/45 focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--mf-accent-investment)_12%,transparent)]">
+      <div className="relative flex items-stretch overflow-hidden rounded-xl border border-border bg-input transition focus-within:border-accent-investment/45 focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--mf-accent-investment)_12%,transparent)]">
         {prefix && (
           <span className="flex shrink-0 items-center border-r border-border bg-overlay px-3 text-sm text-accent-investment">
             {prefix}

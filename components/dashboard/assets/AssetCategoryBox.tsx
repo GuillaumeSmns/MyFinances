@@ -18,7 +18,7 @@ type AssetCategoryBoxProps = {
   sortableStyle?: CSSProperties;
   isDragging?: boolean;
   dragHandle: CategoryDragHandleProps;
-  onTitleChange: (title: string) => void;
+  onNameChange: (name: string) => void;
   onItemChange: (itemId: string, patch: Partial<Omit<AssetItem, "id">>) => void;
   onDeleteItem: (itemId: string) => void;
   onAddLine: () => void;
@@ -33,7 +33,7 @@ export function AssetCategoryBox({
   sortableStyle,
   isDragging = false,
   dragHandle,
-  onTitleChange,
+  onNameChange,
   onItemChange,
   onDeleteItem,
   onAddLine,
@@ -58,8 +58,8 @@ export function AssetCategoryBox({
         <header className="mb-4 flex flex-col gap-1 border-b border-border-subtle pb-3 sm:flex-row sm:items-start sm:justify-between">
           <input
             type="text"
-            value={category.title}
-            onChange={(e) => onTitleChange(e.target.value)}
+            value={category.name}
+            onChange={(e) => onNameChange(e.target.value)}
             aria-label="Category name"
             className="w-full min-w-0 flex-1 border-0 bg-transparent text-base font-semibold text-foreground outline-none focus:ring-0"
           />

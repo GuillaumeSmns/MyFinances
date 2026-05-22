@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AuthFormCard } from "@/components/auth/AuthFormCard";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { clearProfilePreferencesCache } from "@/lib/profile-preferences";
+import { applyUserProfileToClient, ensureUserProfile } from "@/lib/user-profile";
 import { createClient } from "@/utils/supabase/client";
 
 type SignupConfirmationProps = {
@@ -94,26 +96,38 @@ export function SignupForm() {
       const name = String(fd.get("name") ?? "").trim();
 
       setLoading(true);
+      clearProfilePreferencesCache();
       const supabase = createClient();
+      const displayName =
+        name.trim() || email.split("@")[0]?.trim() || "Guest";
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name: name },
+          data: { full_name: displayName },
         },
       });
-      setLoading(false);
 
       if (signUpError) {
+        setLoading(false);
         setError(signUpError.message);
         return;
       }
 
-      if (data.session) {
+      if (data.session && data.user) {
+        try {
+          const profile = await ensureUserProfile(supabase, data.user.id, displayName);
+          applyUserProfileToClient(profile);
+        } catch {
+          // Profile may be created on first dashboard visit; auth metadata still holds the name.
+        }
+        setLoading(false);
         router.push("/dashboard/overview");
         router.refresh();
         return;
       }
+
+      setLoading(false);
 
       setPendingConfirmation({ email });
     },

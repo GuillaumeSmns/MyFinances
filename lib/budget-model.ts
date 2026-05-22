@@ -14,7 +14,16 @@ export type BudgetCategory = {
   items: FinanceItem[];
 };
 
+export type BudgetCategoryType = "revenue" | "investment" | "expense";
+
+export const TAB_TO_CATEGORY_TYPE: Record<BudgetTabId, BudgetCategoryType> = {
+  revenues: "revenue",
+  investments: "investment",
+  expenses: "expense",
+};
+
 export type JournalMonthSnapshot = {
+  monthId?: string;
   revenues: BudgetCategory[];
   investments: BudgetCategory[];
   expenses: BudgetCategory[];
@@ -127,45 +136,57 @@ export function normalizeJournalSnapshot(raw: unknown): JournalMonthSnapshot {
   };
 }
 
-export function getDefaultJournalSnapshot(): JournalMonthSnapshot {
+export function createCategory(title = "New category"): BudgetCategory {
+  return { id: makeBudgetId(), title, items: [] };
+}
+
+/** Starter category shells for new users — no pre-filled amounts. */
+export const STARTER_BUDGET_CATEGORY_SEEDS: ReadonlyArray<{
+  type: BudgetCategoryType;
+  name: string;
+}> = [
+  { type: "revenue", name: "Salary" },
+  { type: "revenue", name: "Financial Revenue" },
+  { type: "investment", name: "ETFs / Investments" },
+  { type: "expense", name: "Loan" },
+  { type: "expense", name: "Home Charges" },
+  { type: "expense", name: "Everyday Expenses" },
+];
+
+function starterCategoriesForType(type: BudgetCategoryType): BudgetCategory[] {
+  return STARTER_BUDGET_CATEGORY_SEEDS.filter((s) => s.type === type).map((s) =>
+    createCategory(s.name),
+  );
+}
+
+/** Starter category structure only — no pre-filled amounts. */
+export function getStarterJournalSnapshot(): JournalMonthSnapshot {
   return {
-    revenues: [
-      category("cat-salary", "Salary", [
-        { id: "rev-basic-salary", label: "Basic salary", amount: 5200 },
-        { id: "rev-accommodation", label: "Accommodation allowance", amount: 1300 },
-        { id: "rev-layover", label: "Layover allowance", amount: 550 },
-        { id: "rev-flight-pay", label: "Flight pay", amount: 1100 },
-        { id: "rev-other", label: "Other", amount: 300 },
-      ]),
-      category("cat-financial-revenue", "Financial Revenue", [
-        { id: "default-fin-dividends", label: "Dividends", amount: 260 },
-        { id: "default-fin-side-income", label: "Side income", amount: 420 },
-      ]),
-      category("cat-immo", "Immo", [{ id: "default-immo-rent", label: "Apartment rent", amount: 950 }]),
-    ],
-    investments: [
-      category("cat-investments", "Monthly investments", [
-        { id: "default-investment-etf", label: "ETF monthly contribution", amount: 400 },
-      ]),
-    ],
-    expenses: [
-      category("cat-salary-deductions", "Salary deductions", [
-        { id: "exp-provident", label: "Provident fund deductions", amount: 700 },
-        { id: "exp-staff-travel", label: "Staff travel", amount: 180 },
-        { id: "exp-pilot-other", label: "Other", amount: 120 },
-      ]),
-      category("cat-loan", "Loan", [{ id: "default-loan-car", label: "Car loan", amount: 480 }]),
-      category("cat-everyday", "Everyday Expenses", [
-        { id: "default-everyday-groceries", label: "Groceries", amount: 530 },
-        { id: "default-everyday-dining", label: "Dining", amount: 220 },
-      ]),
-      category("cat-home", "Home Charges", [
-        { id: "home-dewa", label: "DEWA", amount: 260 },
-        { id: "home-service-fees", label: "Service fees", amount: 340 },
-        { id: "home-other", label: "Other", amount: 90 },
-      ]),
-    ],
+    revenues: starterCategoriesForType("revenue"),
+    investments: starterCategoriesForType("investment"),
+    expenses: starterCategoriesForType("expense"),
   };
+}
+
+/** Copy structure/values from a saved month with fresh client ids (for unsaved new months). */
+export function cloneSnapshotAsNewDraft(source: JournalMonthSnapshot): JournalMonthSnapshot {
+  const remapItems = (items: FinanceItem[]) =>
+    items.map((item) => ({ ...item, id: makeBudgetId() }));
+  const remapCats = (cats: BudgetCategory[]) =>
+    cats.map((cat) => ({
+      ...cat,
+      id: makeBudgetId(),
+      items: remapItems(cat.items),
+    }));
+  return {
+    revenues: remapCats(source.revenues),
+    investments: remapCats(source.investments),
+    expenses: remapCats(source.expenses),
+  };
+}
+
+export function getDefaultJournalSnapshot(): JournalMonthSnapshot {
+  return getStarterJournalSnapshot();
 }
 
 export function getTabCategories(snapshot: JournalMonthSnapshot, tab: BudgetTabId): BudgetCategory[] {
@@ -178,10 +199,6 @@ export function setTabCategories(
   categories: BudgetCategory[],
 ): JournalMonthSnapshot {
   return { ...snapshot, [tab]: categories };
-}
-
-export function createCategory(title = "New category"): BudgetCategory {
-  return { id: makeBudgetId(), title, items: [] };
 }
 
 export function updateCategoryInList(
@@ -231,9 +248,7 @@ export function updateItemAmount(items: FinanceItem[], id: string, amount: numbe
 }
 
 export function updateItemLabel(items: FinanceItem[], id: string, label: string): FinanceItem[] {
-  return items.map((item) =>
-    item.id === id ? { ...item, label: label.trim() === "" ? item.label : label.trim() } : item,
-  );
+  return items.map((item) => (item.id === id ? { ...item, label } : item));
 }
 
 export function addItem(items: FinanceItem[], label: string, amount: number): FinanceItem[] {

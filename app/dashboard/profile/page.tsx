@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ProfilePageContent, type ProfilePageAccount } from "@/components/dashboard/ProfilePageContent";
+import { resolveAuthDisplayName } from "@/lib/user-profile";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
@@ -24,8 +25,10 @@ export default async function ProfilePage() {
 
   const email = user?.email ?? "—";
   const meta = user?.user_metadata as Record<string, unknown> | undefined;
-  const fullName = typeof meta?.full_name === "string" && meta.full_name.trim() ? meta.full_name.trim() : null;
-  const displayName = fullName ?? (email !== "—" ? (email.split("@")[0] ?? "Guest") : "Guest");
+  const displayName = resolveAuthDisplayName(
+    meta,
+    email !== "—" ? email : undefined,
+  );
 
   const account: ProfilePageAccount = {
     fallbackDisplayName: displayName,
@@ -34,5 +37,5 @@ export default async function ProfilePage() {
     memberSince: user ? formatMemberSince(user.created_at) : "—",
   };
 
-  return <ProfilePageContent account={account} />;
+  return <ProfilePageContent account={account} userId={user?.id ?? null} />;
 }

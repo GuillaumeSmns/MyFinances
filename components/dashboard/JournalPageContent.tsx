@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, startTransition } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AddCategoryCard } from "@/components/dashboard/budget/AddCategoryCard";
 import { BudgetSortableCategoryList } from "@/components/dashboard/budget/BudgetSortableCategoryList";
 import { BudgetTabs } from "@/components/dashboard/budget/BudgetTabs";
+import { useBudgetSupabase } from "@/components/dashboard/budget/useBudgetSupabase";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { useCurrency } from "@/components/preferences/CurrencyProvider";
 import { VisualizationPanel } from "@/components/dashboard/VisualizationPanel";
@@ -13,6 +14,7 @@ import {
   createCategory,
   deleteCategoryFromList,
   deleteItem,
+  getStarterJournalSnapshot,
   getTabCategories,
   insertCategory,
   setTabCategories,
@@ -23,23 +25,13 @@ import {
   type BudgetTabId,
   type JournalMonthSnapshot,
 } from "@/lib/budget-model";
-import {
-  createJournalSnapshotForNewMonth,
-  deleteJournalMonth,
-  formatMonthLabel,
-  getDefaultJournalSnapshot,
-  listSavedMonthKeys,
-  listSavedMonthKeysChronological,
-  loadJournalMonth,
-  monthKeyFromDate,
-  parseMonthKey,
-  saveJournalMonth,
-} from "@/lib/journal-storage";
-import { buildCategoryBreakdown, computeJournalOverviewMetrics } from "@/lib/journal-overview";
+import { formatMonthLabel, monthKeyFromDate, parseMonthKey } from "@/lib/journal-storage";
+import { buildCategoryBreakdown } from "@/lib/journal-overview";
 import { ArchiveMonthCard } from "@/components/dashboard/ArchiveMonthCard";
 import { JournalMonthPickerModal } from "@/components/dashboard/JournalMonthPickerModal";
 import { JournalMonthSelectorCenter } from "@/components/dashboard/JournalMonthSelectorCenter";
 import {
+  AlertCircle,
   Archive,
   ArrowDownRight,
   ArrowUpRight,
@@ -47,6 +39,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Landmark,
+  Loader2,
   NotebookPen,
   Save,
   TrendingDown,
@@ -70,35 +63,51 @@ function tryChangeMonth(
   return true;
 }
 
-function confirmDeleteCategory(title: string): boolean {
-  return window.confirm(
-    `Delete category "${title}" and all its lines? This cannot be undone.`,
-  );
-}
+export function JournalPageContent({ userId }: { userId: string | null }) {
+  const {
+    loadState,
+    loadError,
+    saveError,
+    monthSummaries,
+    loadMonth,
+    saveMonth,
+    deleteMonth,
+  } = useBudgetSupabase(userId);
 
-export function JournalPageContent() {
   const [monthKey, setMonthKey] = useState(() => monthKeyFromDate(new Date()));
-  const [snap, setSnap] = useState<JournalMonthSnapshot>(() => getDefaultJournalSnapshot());
+  const [snap, setSnap] = useState<JournalMonthSnapshot>(() => getStarterJournalSnapshot());
   const [activeTab, setActiveTab] = useState<BudgetTabId>("revenues");
   const [lastPersistedSerialized, setLastPersistedSerialized] = useState(
-    () => JSON.stringify(getDefaultJournalSnapshot()),
+    () => JSON.stringify(getStarterJournalSnapshot()),
   );
   const [hasSavedCopyOnDisk, setHasSavedCopyOnDisk] = useState(false);
-  const [localStorageHydrated, setLocalStorageHydrated] = useState(false);
+  const [monthLoadState, setMonthLoadState] = useState<"idle" | "loading">("loading");
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [storageRevision, setStorageRevision] = useState(0);
+  const [saving, setSaving] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
-    startTransition(() => {
-      const fromDisk = loadJournalMonth(monthKey);
-      const initial = fromDisk ?? createJournalSnapshotForNewMonth(monthKey);
-      setSnap(initial);
-      setLastPersistedSerialized(fromDisk ? JSON.stringify(fromDisk) : JSON.stringify(initial));
-      setHasSavedCopyOnDisk(!!fromDisk);
-      setLocalStorageHydrated(true);
-    });
-  }, [monthKey]);
+    if (loadState !== "ready") return;
+
+    let cancelled = false;
+
+    void loadMonth(monthKey)
+      .then(({ snapshot, persisted }) => {
+        if (cancelled) return;
+        setSnap(snapshot);
+        setLastPersistedSerialized(JSON.stringify(snapshot));
+        setHasSavedCopyOnDisk(persisted);
+        setMonthLoadState("idle");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setMonthLoadState("idle");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [monthKey, loadState, loadMonth]);
 
   const currentSerialized = JSON.stringify(snap);
   const dirty = currentSerialized !== lastPersistedSerialized;
@@ -116,23 +125,16 @@ export function JournalPageContent() {
   const investmentBreakdown = useMemo(() => buildCategoryBreakdown(snap.investments), [snap.investments]);
   const expenseBreakdown = useMemo(() => buildCategoryBreakdown(snap.expenses), [snap.expenses]);
 
-  const savedSummaries = useMemo(() => {
-    if (!localStorageHydrated) return [];
-    void storageRevision;
-    return listSavedMonthKeysChronological()
-      .map((key) => {
-        const snapshot = loadJournalMonth(key);
-        if (!snapshot) return null;
-        const m = computeJournalOverviewMetrics(snapshot);
-        return {
-          key,
-          revenue: m.monthlyRevenue,
-          expenses: m.monthlyExpenses,
-          surplus: m.surplus,
-        };
-      })
-      .filter((row): row is { key: string; revenue: number; expenses: number; surplus: number } => row !== null);
-  }, [storageRevision, localStorageHydrated]);
+  const savedSummaries = useMemo(
+    () =>
+      monthSummaries.map((row) => ({
+        key: row.monthKey,
+        revenue: row.revenue,
+        expenses: row.expenses,
+        surplus: row.surplus,
+      })),
+    [monthSummaries],
+  );
 
   const patchCategory = useCallback(
     (categoryId: string, updater: (cat: BudgetCategory) => BudgetCategory) => {
@@ -155,23 +157,26 @@ export function JournalPageContent() {
 
   const handleDeleteCategory = useCallback(
     (categoryId: string) => {
-      const cat = snap[activeTab].find((c) => c.id === categoryId);
-      if (!cat || !confirmDeleteCategory(cat.title)) return;
       setSnap((s) =>
         setTabCategories(s, activeTab, deleteCategoryFromList(s[activeTab], categoryId)),
       );
     },
-    [activeTab, snap],
+    [activeTab],
   );
 
   const handleSave = useCallback(() => {
-    saveJournalMonth(monthKey, snap);
-    setLastPersistedSerialized(JSON.stringify(snap));
-    setHasSavedCopyOnDisk(true);
-    setStorageRevision((r) => r + 1);
-    setSaveMessage("Budget saved for " + formatMonthLabel(monthKey));
-    window.setTimeout(() => setSaveMessage(null), 3500);
-  }, [monthKey, snap]);
+    if (!userId) return;
+    setSaving(true);
+    void saveMonth(monthKey, snap)
+      .then((saved) => {
+        setSnap(saved);
+        setLastPersistedSerialized(JSON.stringify(saved));
+        setHasSavedCopyOnDisk(true);
+        setSaveMessage("Budget saved for " + formatMonthLabel(monthKey));
+        window.setTimeout(() => setSaveMessage(null), 3500);
+      })
+      .finally(() => setSaving(false));
+  }, [monthKey, snap, userId, saveMonth]);
 
   const handleDeleteSavedMonth = useCallback(
     (key: string) => {
@@ -182,23 +187,21 @@ export function JournalPageContent() {
       ) {
         return;
       }
-      deleteJournalMonth(key);
-      setStorageRevision((r) => r + 1);
+      void deleteMonth(key).then((remaining) => {
+        if (key !== monthKey) return;
 
-      if (key !== monthKey) return;
+        const today = monthKeyFromDate(new Date());
 
-      const remaining = listSavedMonthKeys();
-      const today = monthKeyFromDate(new Date());
-
-      if (remaining.includes(today)) {
-        tryChangeMonth(today, false, setMonthKey);
-      } else if (remaining.length > 0) {
-        tryChangeMonth(remaining[0], false, setMonthKey);
-      } else {
-        setMonthKey(today);
-      }
+        if (remaining.includes(today)) {
+          tryChangeMonth(today, false, setMonthKey);
+        } else if (remaining.length > 0) {
+          tryChangeMonth(remaining[0]!, false, setMonthKey);
+        } else {
+          setMonthKey(today);
+        }
+      });
     },
-    [monthKey],
+    [monthKey, deleteMonth],
   );
 
   const goPrevMonth = () => {
@@ -218,6 +221,9 @@ export function JournalPageContent() {
     tryChangeMonth(next, dirty, setMonthKey);
   };
 
+  const pageBusy = loadState === "loading" || monthLoadState === "loading";
+  const categoriesDisabled = pageBusy || loadState === "error";
+
   return (
     <div>
       <header className="mb-6 space-y-4">
@@ -228,10 +234,12 @@ export function JournalPageContent() {
             </IconBox>
             <div>
               <h1 className="text-3xl font-semibold text-foreground">Budget</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Monthly budget and finance recording. Data is stored locally in your browser until a backend is
-                connected.
-              </p>
+              {loadState === "loading" && (
+                <p className="mt-2 inline-flex items-center gap-2 text-xs text-faint">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                  Loading budget…
+                </p>
+              )}
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -259,13 +267,28 @@ export function JournalPageContent() {
             <button
               type="button"
               onClick={handleSave}
-              className="mf-btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition hover:opacity-90"
+              disabled={saving || !userId || loadState !== "ready" || pageBusy}
+              className="mf-btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
             >
               <Save className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
-              Save
+              {saving ? "Saving…" : "Save"}
             </button>
           </div>
         </div>
+
+        {loadError && (
+          <p className="flex items-center gap-2 rounded-lg border border-rose-300/25 bg-rose-500/10 px-4 py-2 text-sm text-rose-100">
+            <AlertCircle className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+            {loadError}
+          </p>
+        )}
+
+        {saveError && (
+          <p className="flex items-center gap-2 rounded-lg border border-rose-300/25 bg-rose-500/10 px-4 py-2 text-sm text-rose-100">
+            <AlertCircle className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+            {saveError}
+          </p>
+        )}
 
         {saveMessage && (
           <p className="flex items-center gap-2 rounded-lg border border-emerald-300/25 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-100">
@@ -381,7 +404,7 @@ export function JournalPageContent() {
         <div
           key={activeTab}
           role="tabpanel"
-          className="space-y-5 transition-opacity duration-200"
+          className={`space-y-5 transition-opacity duration-200 ${categoriesDisabled ? "pointer-events-none opacity-60" : ""}`}
         >
           <BudgetSortableCategoryList
             categories={activeCategories}
@@ -412,7 +435,7 @@ export function JournalPageContent() {
             onAddLine={(categoryId) =>
               patchCategory(categoryId, (c) => ({
                 ...c,
-                items: addItem(c.items, "New line", 0),
+                items: addItem(c.items, "", 0),
               }))
             }
             onDeleteCategory={handleDeleteCategory}

@@ -1,7 +1,7 @@
 import type { JournalMonthSnapshot } from "@/lib/budget-model";
 import { computeBudgetTotals, getLoanTotal, sumCategory } from "@/lib/budget-model";
 import type { BudgetCategory } from "@/lib/budget-model";
-import { loadAllJournalMonths, listSavedMonthKeys } from "@/lib/journal-storage";
+import { readBudgetMonthsCache } from "@/lib/budget-storage";
 
 export type JournalOverviewMetrics = {
   monthlyRevenue: number;
@@ -70,7 +70,7 @@ export function formatChartMonthLabel(monthKey: string): string {
 
 /**
  * Builds one point per saved month, chronological (oldest → newest) for charts.
- * Pass the raw record from `loadAllJournalMonths()` (browser only).
+ * Pass the raw record from {@link readBudgetMonthsCache} (browser only).
  */
 export function buildCashflowSeriesFromRecord(
   all: Record<string, JournalMonthSnapshot>,
@@ -89,9 +89,9 @@ export function buildCashflowSeriesFromRecord(
     });
 }
 
-/** Latest saved month key, or null if none. Uses same ordering as `listSavedMonthKeys()` (newest first). */
+/** Latest saved month key, or null if none (newest first). */
 export function getLatestSavedJournalMonthKey(): string | null {
-  const keys = listSavedMonthKeys();
+  const keys = Object.keys(readBudgetMonthsCache()).sort().reverse();
   return keys[0] ?? null;
 }
 
@@ -106,7 +106,7 @@ export function getLatestSavedJournalFromStorage(): {
   if (typeof window === "undefined") return null;
   const key = getLatestSavedJournalMonthKey();
   if (!key) return null;
-  const all = loadAllJournalMonths();
+  const all = readBudgetMonthsCache();
   const snap = all[key];
   return snap ? { monthKey: key, snapshot: snap } : null;
 }

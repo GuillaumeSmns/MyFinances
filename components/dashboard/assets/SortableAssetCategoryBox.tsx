@@ -9,7 +9,7 @@ import type { PreferredCurrency } from "@/lib/currency";
 type SortableAssetCategoryBoxProps = {
   category: AssetCategory;
   displayCurrency: PreferredCurrency;
-  onTitleChange: (title: string) => void;
+  onNameChange: (name: string) => void;
   onItemChange: (itemId: string, patch: Partial<Omit<AssetItem, "id">>) => void;
   onDeleteItem: (itemId: string) => void;
   onAddLine: () => void;

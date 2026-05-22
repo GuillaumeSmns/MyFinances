@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState, startTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, startTransition } from "react";
 import {
   Activity,
   ArrowDownRight,
@@ -35,7 +35,8 @@ import {
   type JournalDerivedHealth,
   type JournalOverviewMetrics,
 } from "@/lib/journal-overview";
-import { formatMonthLabel, loadAllJournalMonths, monthKeyFromDate } from "@/lib/journal-storage";
+import { readBudgetMonthsCache, BUDGET_CHANGE_EVENT } from "@/lib/budget-storage";
+import { formatMonthLabel, monthKeyFromDate } from "@/lib/journal-storage";
 
 const MonthlyCashflowChart = dynamic(
   () => import("@/components/dashboard/MonthlyCashflowChart").then((m) => m.MonthlyCashflowChart),
@@ -61,33 +62,32 @@ function ChartSkeleton() {
   );
 }
 
-const FALLBACK_METRICS: JournalOverviewMetrics = {
-  monthlyRevenue: 8450,
-  monthlyExpenses: 6120,
-  surplus: 2330,
-  savingsRate: 28,
-  totalDebts: 127500,
-  totalInvestments: 48200,
-  netCashFlow: 2330,
+const EMPTY_OVERVIEW_METRICS: JournalOverviewMetrics = {
+  monthlyRevenue: 0,
+  monthlyExpenses: 0,
+  surplus: 0,
+  savingsRate: 0,
+  totalDebts: 0,
+  totalInvestments: 0,
+  netCashFlow: 0,
 };
 
-const FALLBACK_HEALTH: JournalDerivedHealth = {
-  liquidityScore: 82,
-  debtToIncome: 0.18,
+const EMPTY_HEALTH: JournalDerivedHealth = {
+  liquidityScore: 0,
+  debtToIncome: 0,
 };
 
-function buildSampleCashflowSeries(): CashflowMonthPoint[] {
+function buildEmptyCashflowSeries(): CashflowMonthPoint[] {
   const out: CashflowMonthPoint[] = [];
   const now = new Date();
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthKey = monthKeyFromDate(d);
-    const base = 7600 + (5 - i) * 140;
     out.push({
       monthKey,
       monthLabel: formatChartMonthLabel(monthKey),
-      revenue: Math.round(base + i * 50),
-      expenses: Math.round(base * 0.72 + i * 40),
+      revenue: 0,
+      expenses: 0,
     });
   }
   return out;
@@ -97,9 +97,9 @@ export function OverviewPageContent() {
   const [mounted, setMounted] = useState(false);
   const [hasJournalData, setHasJournalData] = useState(false);
   const [latestMonthKey, setLatestMonthKey] = useState<string | null>(null);
-  const [metrics, setMetrics] = useState<JournalOverviewMetrics>(FALLBACK_METRICS);
-  const [health, setHealth] = useState<JournalDerivedHealth>(FALLBACK_HEALTH);
-  const [cashflowData, setCashflowData] = useState<CashflowMonthPoint[]>(() => buildSampleCashflowSeries());
+  const [metrics, setMetrics] = useState<JournalOverviewMetrics>(EMPTY_OVERVIEW_METRICS);
+  const [health, setHealth] = useState<JournalDerivedHealth>(EMPTY_HEALTH);
+  const [cashflowData, setCashflowData] = useState<CashflowMonthPoint[]>(() => buildEmptyCashflowSeries());
   const [cashflowIsSample, setCashflowIsSample] = useState(true);
   const assetsDisplayCurrency = useAssetsDisplayCurrency();
   const [categoryAllocation, setCategoryAllocation] = useState<CategoryAllocationSlice[]>([]);
@@ -117,39 +117,49 @@ export function OverviewPageContent() {
     };
   }, []);
 
+  const refreshBudgetOverview = useCallback(() => {
+    const all = readBudgetMonthsCache();
+    if (Object.keys(all).length === 0) {
+      setHasJournalData(false);
+      setLatestMonthKey(null);
+      setMetrics(EMPTY_OVERVIEW_METRICS);
+      setHealth(EMPTY_HEALTH);
+      setCashflowData(buildEmptyCashflowSeries());
+      setCashflowIsSample(true);
+      return;
+    }
+
+    setHasJournalData(true);
+    const latest = getLatestSavedJournalFromStorage();
+    if (!latest) {
+      setHasJournalData(false);
+      setMetrics(EMPTY_OVERVIEW_METRICS);
+      setHealth(EMPTY_HEALTH);
+      setCashflowData(buildEmptyCashflowSeries());
+      setCashflowIsSample(true);
+      return;
+    }
+
+    setLatestMonthKey(latest.monthKey);
+    const m = computeJournalOverviewMetrics(latest.snapshot);
+    setMetrics(m);
+    setHealth(computeJournalDerivedHealth(m));
+    setCashflowData(buildCashflowSeriesFromRecord(all));
+    setCashflowIsSample(false);
+  }, []);
+
   useEffect(() => {
     startTransition(() => {
       setMounted(true);
-      const all = loadAllJournalMonths();
-      if (Object.keys(all).length === 0) {
-        setHasJournalData(false);
-        setLatestMonthKey(null);
-        setMetrics(FALLBACK_METRICS);
-        setHealth(FALLBACK_HEALTH);
-        setCashflowData(buildSampleCashflowSeries());
-        setCashflowIsSample(true);
-        return;
-      }
-
-      setHasJournalData(true);
-      const latest = getLatestSavedJournalFromStorage();
-      if (!latest) {
-        setHasJournalData(false);
-        setMetrics(FALLBACK_METRICS);
-        setHealth(FALLBACK_HEALTH);
-        setCashflowData(buildSampleCashflowSeries());
-        setCashflowIsSample(true);
-        return;
-      }
-
-      setLatestMonthKey(latest.monthKey);
-      const m = computeJournalOverviewMetrics(latest.snapshot);
-      setMetrics(m);
-      setHealth(computeJournalDerivedHealth(m));
-      setCashflowData(buildCashflowSeriesFromRecord(all));
-      setCashflowIsSample(false);
+      refreshBudgetOverview();
     });
-  }, []);
+  }, [refreshBudgetOverview]);
+
+  useEffect(() => {
+    const onBudgetChange = () => refreshBudgetOverview();
+    window.addEventListener(BUDGET_CHANGE_EVENT, onBudgetChange);
+    return () => window.removeEventListener(BUDGET_CHANGE_EVENT, onBudgetChange);
+  }, [refreshBudgetOverview]);
 
   const { formatAmount, currencyCode } = useCurrency();
 
@@ -169,27 +179,27 @@ export function OverviewPageContent() {
   );
   const revenueShare = 100 - expenseShare;
 
-  const debtsHelper = hasJournalData ? undefined : "Outstanding liabilities (sample)";
-  const investmentsHelper = hasJournalData ? undefined : "Portfolio value (sample)";
-  const netCashHelper = hasJournalData ? "Revenue − expenses" : "Revenue minus expenses (sample)";
+  const debtsHelper = hasJournalData ? undefined : "From Loan in Budget (0 until you add amounts)";
+  const investmentsHelper = hasJournalData ? undefined : "From Investments tab (0 until you add amounts)";
+  const netCashHelper = hasJournalData ? "Revenue − expenses" : "Revenue minus expenses";
 
   const revExpSubtitle = hasJournalData && latestMonthKey
     ? `Latest saved month · ${formatMonthLabel(latestMonthKey)}`
-    : "This month (sample)";
+    : "No saved month yet";
 
   const healthSubtitle = hasJournalData
     ? "Derived from your latest saved month in Budget"
-    : "Quick signals (sample)";
+    : "Derived from Budget once you save a month";
 
   const cashflowCardSubtitle = cashflowIsSample
-    ? "Sample monthly trend — save months in Budget to see your data"
+    ? "No saved months yet — save in Budget to build your trend"
     : `All saved months · ${currencyCode}`;
 
   return (
     <div className="space-y-8">
       {!hasJournalData && mounted && (
         <p className="rounded-lg border border-amber-300/20 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-100/95">
-          No budget data saved yet. Showing sample overview.
+          No budget data saved yet. Figures below are zero until you add amounts in Budget.
         </p>
       )}
 
@@ -202,7 +212,7 @@ export function OverviewPageContent() {
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             {hasJournalData && latestMonthKey
               ? `Figures reflect your most recent month saved in Budget (${formatMonthLabel(latestMonthKey)}). Health signals are derived from that snapshot.`
-              : "Monthly snapshot and financial health at a glance. Save a month in Budget to replace sample figures."}
+              : "Monthly snapshot and financial health at a glance. Save a month in Budget to populate these cards."}
           </p>
         </div>
       </header>
@@ -304,7 +314,7 @@ export function OverviewPageContent() {
             <p className="mt-1 text-xs text-faint">
               {hasJournalData && latestMonthKey
                 ? `Latest saved month · ${formatMonthLabel(latestMonthKey)}`
-                : "Sample month"}
+                : "No saved month yet"}
             </p>
           </div>
         </DashboardCard>

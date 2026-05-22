@@ -73,3 +73,10 @@ export function getStoredDisplayName(): string | null {
   const name = readProfilePreferences()?.displayName;
   return name && name.length > 0 ? name : null;
 }
+
+/** Clears cached profile preferences (e.g. on logout) so the next user cannot inherit them. */
+export function clearProfilePreferencesCache(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(PROFILE_PREFERENCES_STORAGE_KEY);
+  window.dispatchEvent(new CustomEvent(PROFILE_PREFERENCES_CHANGE_EVENT));
+}

@@ -13,9 +13,17 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useSensor, useSensors } from "@dnd-kit/core";
+import { useIsClient } from "@/components/hooks/useIsClient";
+import { BudgetCategoryBox } from "@/components/dashboard/budget/BudgetCategoryBox";
+import type { CategoryDragHandleProps } from "@/components/dashboard/budget/FloatingCategoryControls";
 import { SortableBudgetCategoryBox } from "@/components/dashboard/budget/SortableBudgetCategoryBox";
 import type { BudgetCategory } from "@/lib/budget-model";
 import { reorderCategoriesByIds } from "@/lib/budget-model";
+
+const STATIC_DRAG_HANDLE: CategoryDragHandleProps = {
+  attributes: {},
+  listeners: undefined,
+};
 
 type BudgetSortableCategoryListProps = {
   categories: BudgetCategory[];
@@ -40,6 +48,8 @@ export function BudgetSortableCategoryList({
   onDeleteCategory,
   onAddCategoryAfter,
 }: BudgetSortableCategoryListProps) {
+  const mounted = useIsClient();
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -50,6 +60,27 @@ export function BudgetSortableCategoryList({
     if (!over || active.id === over.id) return;
     onReorder(reorderCategoriesByIds(categories, String(active.id), String(over.id)));
   };
+
+  if (!mounted) {
+    return (
+      <div className="space-y-5">
+        {categories.map((category, index) => (
+          <BudgetCategoryBox
+            key={category.id}
+            category={category}
+            dragHandle={STATIC_DRAG_HANDLE}
+            onTitleChange={(title) => onTitleChange(category.id, title)}
+            onAmountChange={(itemId, amount) => onAmountChange(category.id, itemId, amount)}
+            onLabelChange={(itemId, label) => onLabelChange(category.id, itemId, label)}
+            onDeleteItem={(itemId) => onDeleteItem(category.id, itemId)}
+            onAddLine={() => onAddLine(category.id)}
+            onDeleteCategory={() => onDeleteCategory(category.id)}
+            onAddCategoryAfter={() => onAddCategoryAfter(index)}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

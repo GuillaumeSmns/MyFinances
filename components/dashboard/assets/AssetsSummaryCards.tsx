@@ -36,13 +36,6 @@ function MetricCard({
   );
 }
 
-function riskLabel(score: number, invert = false): string {
-  const s = invert ? 100 - score : score;
-  if (s < 34) return "Low";
-  if (s < 67) return "Moderate";
-  return "High";
-}
-
 export function AssetsSummaryCards({ analytics }: AssetsSummaryCardsProps) {
   const { displayCurrency } = analytics;
   const fmt = (n: number) =>
@@ -53,7 +46,7 @@ export function AssetsSummaryCards({ analytics }: AssetsSummaryCardsProps) {
       <MetricCard
         label="Total Assets"
         value={fmt(analytics.totalConverted)}
-        helper="All holdings converted to your Assets default currency (static FX rates)."
+        helper="All holdings converted to your Assets default currency."
         icon={Wallet}
         valueClassName="text-white mf-light:text-slate-900"
       />
@@ -78,7 +71,7 @@ export function AssetsSummaryCards({ analytics }: AssetsSummaryCardsProps) {
       <MetricCard
         label="Currency Risk Score"
         value={`${analytics.currencyRiskScore}`}
-        helper={`${riskLabel(analytics.currencyRiskScore)} exposure · /100 (higher = more concentration risk)`}
+        helper="Currency concentration exposure; higher means more concentration risk."
         icon={Globe2}
         valueClassName={
           analytics.currencyRiskScore >= 67
@@ -91,7 +84,7 @@ export function AssetsSummaryCards({ analytics }: AssetsSummaryCardsProps) {
       <MetricCard
         label="Diversification Score"
         value={`${analytics.diversificationScore}`}
-        helper={`${riskLabel(analytics.diversificationScore, true)} spread · /100 (higher = better)`}
+        helper="Asset allocation diversity; higher means broader diversification."
         icon={Layers}
         valueClassName="text-accent-success"
       />

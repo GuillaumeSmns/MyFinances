@@ -1,8 +1,4 @@
-import {
-  getDefaultAssetsSnapshot,
-  normalizeAssetsSnapshot,
-  type AssetsSnapshot,
-} from "@/lib/assets-model";
+import { getEmptyAssetsSnapshot, normalizeAssetsSnapshot, type AssetsSnapshot } from "@/lib/assets-model";
 
 export const ASSETS_STORAGE_KEY = "myfinances-assets";
 
@@ -12,14 +8,15 @@ function cloneSnapshot(snapshot: AssetsSnapshot): AssetsSnapshot {
   return JSON.parse(JSON.stringify(snapshot)) as AssetsSnapshot;
 }
 
+/** Offline cache of last synced Supabase snapshot (not a source of truth). */
 export function readAssetsFromStorage(): AssetsSnapshot {
-  if (typeof window === "undefined") return getDefaultAssetsSnapshot();
+  if (typeof window === "undefined") return getEmptyAssetsSnapshot();
   const raw = window.localStorage.getItem(ASSETS_STORAGE_KEY);
-  if (!raw) return getDefaultAssetsSnapshot();
+  if (!raw) return getEmptyAssetsSnapshot();
   try {
     return normalizeAssetsSnapshot(JSON.parse(raw));
   } catch {
-    return getDefaultAssetsSnapshot();
+    return getEmptyAssetsSnapshot();
   }
 }
 
