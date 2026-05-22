@@ -24,7 +24,7 @@ const CompoundGrowthChart = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="flex w-full animate-pulse items-center justify-center rounded-xl bg-white/[0.04] text-xs text-slate-500"
+        className="flex w-full animate-pulse items-center justify-center rounded-xl bg-white/[0.04] text-xs text-faint"
         style={{ height: 340 }}
       >
         Loading chart…
@@ -45,20 +45,20 @@ function ResultMetric({ label, value, variant = "default" }: ResultMetricProps) 
       ? "text-[#38bdf8] mf-light:text-sky-600"
       : variant === "gold"
         ? "text-[#f4be7e]"
-        : "text-white mf-light:text-slate-900";
+        : "text-foreground";
 
   const hoverClass =
     variant === "blue"
       ? "hover:border-sky-400/30"
       : variant === "gold"
         ? "hover:border-[#f4be7e]/25"
-        : "hover:border-white/20";
+        : "hover:border-border-strong";
 
   return (
     <div
-      className={`rounded-xl border border-white/10 bg-slate-950/40 p-4 transition mf-light:border-slate-200 mf-light:bg-slate-50/80 ${hoverClass}`}
+      className={`rounded-xl border border-border bg-card p-4 transition ${hoverClass}`}
     >
-      <p className="text-xs font-medium uppercase tracking-wider text-slate-500 mf-light:text-slate-600">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
       <p className={`mt-2 text-2xl font-semibold tracking-tight sm:text-3xl ${valueClass}`}>{value}</p>
@@ -94,10 +94,10 @@ export function CompoundInterestCalculatorContent() {
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#f4be7e]/90">
             Projections
           </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-white mf-light:text-slate-900">
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
             Compound Interest Calculator
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-400 mf-light:text-slate-600">
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Model long-term wealth growth with recurring contributions and compounding returns.
           </p>
         </div>

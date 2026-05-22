@@ -37,7 +37,7 @@ export function DashboardLogoutButton({ variant = "sidebar" }: DashboardLogoutBu
       <LogOut
         className={`shrink-0 transition duration-200 ${
           variant === "sidebar"
-            ? "h-[18px] w-[18px] text-slate-500 group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
+            ? "h-[18px] w-[18px] text-faint group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
             : "h-4 w-4 text-slate-400 group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
         }`}
         strokeWidth={1.5}

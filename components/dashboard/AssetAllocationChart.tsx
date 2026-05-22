@@ -1,6 +1,7 @@
 "use client";
 
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useChartTheme } from "@/components/theme/useChartTheme";
 import { MF_THEME, MF_THEME_LEGACY, type MfPaletteId } from "@/lib/theme-colors";
 
 export type AssetSlice = {
@@ -20,34 +21,25 @@ function buildSampleAllocation(palette: MfPaletteId): AssetSlice[] {
   }));
 }
 
-function readPalette(): MfPaletteId {
-  if (typeof document === "undefined") return "legacy";
-  return document.documentElement.getAttribute("data-mf-palette") === "luxury" ? "luxury" : "legacy";
-}
-
 /** Sample slices — colors follow active palette */
 export const SAMPLE_ASSET_ALLOCATION: AssetSlice[] = buildSampleAllocation("legacy");
 
-function chartTooltipStyle(palette: MfPaletteId) {
-  const t = palette === "legacy" ? MF_THEME_LEGACY : MF_THEME;
-  return {
-    backgroundColor: t.chart.tooltipBg,
-    border: `1px solid ${t.chart.tooltipBorder}`,
-    borderRadius: "10px",
-    fontSize: "12px",
-    color: t.chart.tooltipText,
-  };
-}
-
 type AssetAllocationChartProps = {
   data: AssetSlice[];
+  /** Sample data uses percentages; Assets page uses nominal values. */
+  valueMode?: "percent" | "nominal";
 };
 
-export function AssetAllocationChart({ data }: AssetAllocationChartProps) {
-  const palette = readPalette();
-  const tooltipStyle = chartTooltipStyle(palette);
-  const pieStroke = palette === "legacy" ? MF_THEME_LEGACY.chart.pieStroke : MF_THEME.chart.pieStroke;
-  const legendColor = palette === "legacy" ? MF_THEME_LEGACY.chart.axis : MF_THEME.chart.axis;
+export function AssetAllocationChart({ data, valueMode = "percent" }: AssetAllocationChartProps) {
+  const { chart, allocation } = useChartTheme();
+  const total = data.reduce((sum, d) => sum + d.value, 0);
+  const tooltipStyle = {
+    backgroundColor: chart.tooltipBg,
+    border: `1px solid ${chart.tooltipBorder}`,
+    borderRadius: "10px",
+    fontSize: "12px",
+    color: chart.tooltipText,
+  };
 
   return (
     <div className="mx-auto w-full max-w-md" style={{ height: 320, minHeight: 260 }}>
@@ -62,20 +54,23 @@ export function AssetAllocationChart({ data }: AssetAllocationChartProps) {
             innerRadius="58%"
             outerRadius="82%"
             paddingAngle={2}
-            stroke={pieStroke}
+            stroke={chart.pieStroke}
             strokeWidth={2}
           >
-            {data.map((entry) => (
-              <Cell key={entry.name} fill={entry.color} />
+            {data.map((entry, index) => (
+              <Cell key={entry.name} fill={entry.color ?? allocation[index % allocation.length]} />
             ))}
           </Pie>
-          <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`${Number(value ?? 0)}%`, "Share"]} />
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            align="center"
-            wrapperStyle={{ fontSize: "11px", color: legendColor, paddingTop: "8px" }}
+          <Tooltip
+            contentStyle={tooltipStyle}
+            formatter={(value, name) => {
+              const v = Number(value ?? 0);
+              if (valueMode === "percent") return [`${v}%`, "Allocation"];
+              const pct = total > 0 ? (v / total) * 100 : 0;
+              return [`${v.toLocaleString(undefined, { maximumFractionDigits: 0 })} (${pct.toFixed(1)}%)`, name];
+            }}
           />
+          <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "12px", color: chart.axis }} />
         </PieChart>
       </ResponsiveContainer>
     </div>

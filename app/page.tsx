@@ -101,8 +101,8 @@ function FeatureCard({ feature }: { feature: Feature }) {
       <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-300/30 bg-cyan-400/10 text-xs font-semibold tracking-wide text-cyan-200">
         {feature.icon}
       </div>
-      <h3 className="mb-2 text-lg font-semibold text-white mf-light:text-slate-900">{feature.title}</h3>
-      <p className="text-sm leading-relaxed text-slate-300 mf-light:text-slate-600">{feature.description}</p>
+      <h3 className="mb-2 text-lg font-semibold text-foreground">{feature.title}</h3>
+      <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
     </GlassCard>
   );
 }
@@ -114,8 +114,8 @@ function DashboardMockup() {
     <GlassCard className="p-6">
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-400 mf-light:text-slate-600">Financial Snapshot</p>
-          <p className="mt-1 text-lg font-semibold text-white mf-light:text-slate-900">MyFinances Dashboard</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Financial Snapshot</p>
+          <p className="mt-1 text-lg font-semibold text-foreground">MyFinances Dashboard</p>
         </div>
         <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
           Live
@@ -127,8 +127,8 @@ function DashboardMockup() {
             key={item.label}
             className="rounded-xl border border-white/10 bg-slate-950/40 p-4 transition hover:border-cyan-300/30 mf-light:border-slate-200 mf-light:bg-slate-50"
           >
-            <p className="text-xs text-slate-400 mf-light:text-slate-600">{item.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-white mf-light:text-slate-900">{item.value}</p>
+            <p className="text-xs text-muted-foreground">{item.label}</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{item.value}</p>
             <p className={`mt-1 text-xs ${item.positive ? "text-emerald-300" : "text-slate-400"}`}>
               {item.trend}
             </p>
@@ -138,8 +138,8 @@ function DashboardMockup() {
       <div className="mt-6 grid gap-3 md:grid-cols-[1.2fr_1fr]">
         <div className="landing-spending-trend rounded-xl border border-white/10 bg-slate-950/40 p-4 mf-light:border-slate-200 mf-light:bg-slate-50">
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-medium text-white mf-light:text-slate-900">Spending Trend</p>
-            <p className="text-xs text-slate-400 mf-light:text-slate-600">Year to date: $34,460</p>
+            <p className="text-sm font-medium text-foreground">Spending Trend</p>
+            <p className="text-xs text-muted-foreground">Year to date: $34,460</p>
           </div>
           <div className="relative h-40">
             <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
@@ -162,25 +162,25 @@ function DashboardMockup() {
             ))}
             </div>
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-slate-400 mf-light:text-slate-600">
+          <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
             {spendingTrend.map((point) => (
               <span key={point.month}>{point.month}</span>
             ))}
           </div>
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4 mf-light:border-slate-200 mf-light:bg-slate-50">
-          <p className="mb-3 text-sm font-medium text-white mf-light:text-slate-900">Monthly Input Summary</p>
+          <p className="mb-3 text-sm font-medium text-foreground">Monthly Input Summary</p>
           <div className="space-y-3 text-sm">
             <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3 mf-light:border-slate-200 mf-light:bg-slate-100">
-              <p className="text-xs text-slate-400 mf-light:text-slate-600">Revenue</p>
+              <p className="text-xs text-muted-foreground">Revenue</p>
               <p className="mt-1 text-base font-medium text-emerald-300">$7,400</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3 mf-light:border-slate-200 mf-light:bg-slate-100">
-              <p className="text-xs text-slate-400 mf-light:text-slate-600">Expenses</p>
+              <p className="text-xs text-muted-foreground">Expenses</p>
               <p className="mt-1 text-base font-medium mf-text-expense mf-light:text-rose-800">$4,280</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-slate-900/60 p-3 mf-light:border-slate-200 mf-light:bg-slate-100">
-              <p className="text-xs text-slate-400 mf-light:text-slate-600">Net Monthly Result</p>
+              <p className="text-xs text-muted-foreground">Net Monthly Result</p>
               <p className="mt-1 text-base font-medium text-cyan-200">$3,120</p>
             </div>
           </div>
@@ -192,7 +192,7 @@ function DashboardMockup() {
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100 mf-light:bg-slate-100 mf-light:text-slate-900">
+    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-500/20 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
@@ -202,7 +202,7 @@ export default function Home() {
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 lg:px-8">
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight text-white transition hover:text-cyan-200 mf-light:text-slate-900 mf-light:hover:text-cyan-700"
+          className="text-xl font-semibold tracking-tight text-foreground transition hover:text-cyan-500"
         >
           MyFinances
         </Link>
@@ -250,8 +250,8 @@ export default function Home() {
 
         <section className="py-12 lg:py-16">
           <div className="mb-8 max-w-2xl">
-            <h2 className="text-3xl font-semibold text-white mf-light:text-slate-900">Everything You Need to Master Money</h2>
-            <p className="mt-3 text-slate-300 mf-light:text-slate-600">
+            <h2 className="text-3xl font-semibold text-foreground">Everything You Need to Master Money</h2>
+            <p className="mt-3 text-muted-foreground">
               Purpose-built tools designed to simplify financial operations and improve clarity.
             </p>
           </div>
@@ -263,41 +263,41 @@ export default function Home() {
         </section>
 
         <section className="py-12 lg:py-16">
-          <h2 className="mb-8 text-3xl font-semibold text-white mf-light:text-slate-900">Dashboard Preview</h2>
+          <h2 className="mb-8 text-3xl font-semibold text-foreground">Dashboard Preview</h2>
           <DashboardMockup />
         </section>
 
         <section className="py-12 lg:py-16">
           <GlassCard className="p-8 lg:p-10">
-            <h2 className="text-3xl font-semibold text-white mf-light:text-slate-900">Why MyFinances Works Better</h2>
+            <h2 className="text-3xl font-semibold text-foreground">Why MyFinances Works Better</h2>
             <div className="mt-6 grid gap-5 md:grid-cols-2">
               <div>
                 <h3 className="text-base font-semibold text-cyan-200 mf-light:text-cyan-800">Centralized finance management</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300 mf-light:text-slate-600">
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Unify accounts, debts, budgets, and investments under one secure workspace.
                 </p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-cyan-200 mf-light:text-cyan-800">Better visibility</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300 mf-light:text-slate-600">
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   See your full financial picture instantly with live summaries and trends.
                 </p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-cyan-200 mf-light:text-cyan-800">Financial discipline</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300 mf-light:text-slate-600">
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Build healthier habits through budget alerts and measurable monthly targets.
                 </p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-cyan-200 mf-light:text-cyan-800">Decision making</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300 mf-light:text-slate-600">
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Make informed choices with contextual indicators and scenario-based insights.
                 </p>
               </div>
               <div className="md:col-span-2">
                 <h3 className="text-base font-semibold text-cyan-200 mf-light:text-cyan-800">Clean analytics</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300 mf-light:text-slate-600">
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Interpret performance quickly using elegant visual reports and concise metrics.
                 </p>
               </div>
@@ -306,8 +306,8 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 mf-light:border-slate-200">
-        <div className="mx-auto w-full max-w-6xl px-6 py-8 text-sm text-slate-400 mf-light:text-slate-600 lg:px-8">
+      <footer className="border-t border-border">
+        <div className="mx-auto w-full max-w-6xl px-6 py-8 text-sm text-muted-foreground lg:px-8">
           <p>© {new Date().getFullYear()} MyFinances. All rights reserved.</p>
         </div>
       </footer>

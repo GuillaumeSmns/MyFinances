@@ -29,9 +29,9 @@ export function AddItemForm({ onAddItem, buttonLabel = "Add Item" }: AddItemForm
         value={label}
         onChange={(event) => setLabel(event.target.value)}
         placeholder="Item label"
-        className="rounded-lg border border-white/15 bg-slate-900/90 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-2 focus:ring-cyan-300/15 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
+        className="rounded-lg border border-white/15 bg-slate-900/90 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-faint focus:border-cyan-300/60 focus:ring-2 focus:ring-cyan-300/15 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
       />
-      <div className="flex items-center gap-2 rounded-lg border border-white/12 bg-slate-900/90 px-3 py-2 transition focus-within:border-cyan-300/50 focus-within:ring-2 focus-within:ring-cyan-300/15 mf-light:border-slate-200 mf-light:bg-white">
+      <div className="flex items-center gap-2 rounded-lg border border-border bg-input px-3 py-2 transition focus-within:border-cyan-400/50 focus-within:ring-2 focus-within:ring-cyan-400/15">
         <span className="text-xs font-medium tracking-wide text-slate-400">AED</span>
         <input
           type="text"
@@ -40,7 +40,7 @@ export function AddItemForm({ onAddItem, buttonLabel = "Add Item" }: AddItemForm
           value={amount}
           onChange={(event) => setAmount(sanitizeNumericDraft(event.target.value))}
           placeholder="0.00"
-          className="no-spinner w-full bg-transparent text-sm font-medium text-slate-100 outline-none placeholder:text-slate-500 mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
+          className="no-spinner w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-faint"
         />
       </div>
       <button

@@ -67,16 +67,16 @@ function JournalMonthPickerModalContent({
               <CalendarRange className="h-5 w-5" strokeWidth={1.5} aria-hidden />
             </span>
             <div>
-              <h2 id="journal-month-picker-title" className="text-lg font-semibold text-white mf-light:text-slate-900">
+              <h2 id="journal-month-picker-title" className="text-lg font-semibold text-foreground">
                 Select month
               </h2>
-              <p className="text-xs text-slate-400 mf-light:text-slate-600">Choose any month up to the current period.</p>
+              <p className="text-xs text-muted-foreground">Choose any month up to the current period.</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-white/10 p-2 text-slate-400 transition hover:border-white/20 hover:bg-white/5 hover:text-white mf-light:border-slate-200 mf-light:hover:bg-slate-100 mf-light:hover:text-slate-900"
+            className="rounded-lg border border-white/10 p-2 text-slate-400 transition hover:border-border-strong hover:bg-white/5 hover:text-white mf-light:border-slate-200 mf-light:hover:bg-slate-100 mf-light:hover:text-slate-900"
             aria-label="Close"
           >
             <X className="h-4 w-4" strokeWidth={1.5} />
@@ -85,7 +85,7 @@ function JournalMonthPickerModalContent({
 
         <label
           htmlFor="journal-month-picker-input"
-          className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500"
+          className="mb-1 block text-xs font-medium uppercase tracking-wide text-faint"
         >
           Month & year
         </label>
@@ -109,7 +109,7 @@ function JournalMonthPickerModalContent({
                 value={draft}
                 max={maxMonthKey}
                 onChange={(e) => setDraft(e.target.value)}
-                className="w-full cursor-pointer border-0 bg-transparent p-0 text-base font-semibold text-white outline-none [color-scheme:dark] appearance-none placeholder:text-slate-500 mf-light:text-slate-900 mf-light:[color-scheme:light] [&::-webkit-calendar-picker-indicator]:hidden"
+                className="w-full cursor-pointer border-0 bg-transparent p-0 text-base font-semibold text-white outline-none [color-scheme:dark] appearance-none placeholder:text-faint mf-light:text-slate-900 mf-light:[color-scheme:light] [&::-webkit-calendar-picker-indicator]:hidden"
               />
             </div>
             <div className="flex shrink-0 flex-col items-center justify-center gap-0.5 border-l border-white/10 bg-slate-950/50 px-2 py-2 sm:px-3 mf-light:border-slate-200 mf-light:bg-slate-100">
@@ -126,14 +126,14 @@ function JournalMonthPickerModalContent({
                 <CalendarDays className="h-6 w-6" strokeWidth={1.5} aria-hidden />
               </button>
               <ChevronDown
-                className="h-4 w-4 shrink-0 text-slate-500 transition group-hover/month-field:text-cyan-200/80"
+                className="h-4 w-4 shrink-0 text-faint transition group-hover/month-field:text-cyan-200/80"
                 strokeWidth={2}
                 aria-hidden
               />
             </div>
           </div>
         </div>
-        {draft && <p className="mb-6 text-sm text-slate-400 mf-light:text-slate-600">{formatMonthLabel(draft)}</p>}
+        {draft && <p className="mb-6 text-sm text-muted-foreground">{formatMonthLabel(draft)}</p>}
 
         <div className="flex flex-wrap justify-end gap-2">
           <button

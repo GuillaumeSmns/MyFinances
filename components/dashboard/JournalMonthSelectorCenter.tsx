@@ -52,9 +52,9 @@ export function JournalMonthSelectorCenter({
       onClick={onOpenPicker}
       aria-haspopup="dialog"
       aria-expanded={pickerOpen}
-      className="group relative mx-auto flex w-full max-w-[260px] cursor-pointer flex-col items-center gap-1.5 rounded-2xl border border-white/[0.12] bg-white/[0.06] px-5 py-3.5 text-center shadow-[0_8px_32px_rgba(12,10,8,0.4)] backdrop-blur-xl transition duration-200 ease-out hover:border-cyan-400/35 hover:bg-white/[0.1] hover:shadow-mf-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 mf-light:border-slate-200 mf-light:bg-white mf-light:shadow-md mf-light:hover:border-cyan-400/50 mf-light:focus-visible:ring-offset-slate-100"
+      className="group relative mx-auto flex w-full max-w-[260px] cursor-pointer flex-col items-center gap-1.5 rounded-2xl border border-border-strong bg-card px-5 py-3.5 text-center shadow-mf-card backdrop-blur-xl transition duration-200 ease-out hover:border-cyan-400/35 hover:shadow-mf-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset"
     >
-      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-400 mf-light:text-slate-500">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-faint group-hover:text-slate-400 mf-light:text-faint">
         Select month
       </span>
       <div className="flex items-center gap-1.5 text-cyan-200/90 mf-light:text-cyan-800">
@@ -62,8 +62,8 @@ export function JournalMonthSelectorCenter({
         <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-70" strokeWidth={2} aria-hidden />
       </div>
       <div className="min-h-[2.5rem]">
-        <span className="block text-lg font-semibold tracking-tight text-white sm:text-xl mf-light:text-slate-900">{month}</span>
-        <span className="block text-xs font-medium text-slate-400 sm:text-sm mf-light:text-slate-600">{year}</span>
+        <span className="block text-lg font-semibold tracking-tight text-foreground sm:text-xl">{month}</span>
+        <span className="block text-xs font-medium text-muted-foreground sm:text-sm">{year}</span>
       </div>
       {badge}
     </button>

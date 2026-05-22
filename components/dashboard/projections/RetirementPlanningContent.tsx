@@ -25,7 +25,7 @@ const RetirementGrowthChart = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="flex w-full animate-pulse items-center justify-center rounded-xl bg-white/[0.04] text-xs text-slate-500"
+        className="flex w-full animate-pulse items-center justify-center rounded-xl bg-white/[0.04] text-xs text-faint"
         style={{ height: 360 }}
       >
         Loading chart…
@@ -62,10 +62,10 @@ export function RetirementPlanningContent() {
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#f4be7e]/90">
             Projections
           </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-white mf-light:text-slate-900">
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
             Retirement Planning
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-400 mf-light:text-slate-600">
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Project capital growth from monthly savings, then estimate when your portfolio can fund
             your target share of current income at retirement yield.
           </p>

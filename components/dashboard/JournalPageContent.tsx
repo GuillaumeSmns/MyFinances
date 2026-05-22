@@ -227,8 +227,8 @@ export function JournalPageContent() {
               <NotebookPen className="h-5 w-5" strokeWidth={1.5} />
             </IconBox>
             <div>
-              <h1 className="text-3xl font-semibold text-white mf-light:text-slate-900">Budget</h1>
-              <p className="mt-1 text-sm text-slate-400 mf-light:text-slate-600">
+              <h1 className="text-3xl font-semibold text-foreground">Budget</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Monthly budget and finance recording. Data is stored locally in your browser until a backend is
                 connected.
               </p>
@@ -252,7 +252,7 @@ export function JournalPageContent() {
               </span>
             )}
             {!hasSavedCopyOnDisk && !dirty && (
-              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-slate-300">
+              <span className="rounded-full border border-border bg-overlay px-3 py-1 text-xs text-muted-foreground">
                 Not saved yet
               </span>
             )}
@@ -274,19 +274,19 @@ export function JournalPageContent() {
           </p>
         )}
 
-        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-900/50 p-4 backdrop-blur mf-light:border-slate-200 mf-light:bg-white/90">
+        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 backdrop-blur">
           <div className="mx-auto flex w-full max-w-3xl flex-col items-stretch gap-3 sm:flex-row sm:items-stretch sm:justify-center sm:gap-4">
             <button
               type="button"
               onClick={goPrevMonth}
-              className="group inline-flex min-h-[100px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-white/[0.14] bg-white/[0.04] px-3 py-2.5 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-white/[0.08] hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:max-w-[140px] sm:flex-none sm:min-w-[100px]"
+              className="group inline-flex min-h-[100px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-border-strong bg-overlay px-3 py-2.5 text-foreground shadow-[inset_0_1px_0_var(--mf-sem-overlay-hover)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-overlay-hover hover:text-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset sm:max-w-[140px] sm:flex-none sm:min-w-[100px]"
             >
               <ChevronLeft
-                className="h-6 w-6 shrink-0 text-slate-300 transition group-hover:-translate-x-0.5 group-hover:text-cyan-200"
+                className="h-6 w-6 shrink-0 text-muted-foreground transition group-hover:-translate-x-0.5 group-hover:text-cyan-400"
                 strokeWidth={1.75}
                 aria-hidden
               />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-400">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint group-hover:text-muted-foreground">
                 Previous
               </span>
             </button>
@@ -301,31 +301,31 @@ export function JournalPageContent() {
               type="button"
               onClick={goNextMonth}
               disabled={monthKey >= monthKeyFromDate(new Date())}
-              className="group inline-flex min-h-[100px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-white/[0.14] bg-white/[0.04] px-3 py-2.5 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-white/[0.08] hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/[0.02] disabled:text-slate-600 disabled:shadow-none sm:max-w-[140px] sm:flex-none sm:min-w-[100px]"
+              className="group inline-flex min-h-[100px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-border-strong bg-overlay px-3 py-2.5 text-foreground shadow-[inset_0_1px_0_var(--mf-sem-overlay-hover)] backdrop-blur-md transition hover:border-cyan-400/35 hover:bg-overlay-hover hover:text-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-ring-offset disabled:cursor-not-allowed disabled:border-border disabled:bg-overlay/50 disabled:text-faint disabled:shadow-none sm:max-w-[140px] sm:flex-none sm:min-w-[100px]"
             >
               <ChevronRight
-                className="h-6 w-6 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-cyan-200 disabled:group-hover:translate-x-0"
+                className="h-6 w-6 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-cyan-400 disabled:group-hover:translate-x-0"
                 strokeWidth={1.75}
                 aria-hidden
               />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 group-hover:text-slate-400">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint group-hover:text-muted-foreground">
                 Next
               </span>
             </button>
           </div>
           <div className="flex justify-center">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-slate-200">
+            <p className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-2 text-sm text-secondary">
               {surplus >= 0 ? (
                 <TrendingUp className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={1.5} aria-hidden />
               ) : (
                 <TrendingDown className="h-4 w-4 shrink-0 text-rose-400" strokeWidth={1.5} aria-hidden />
               )}
-              <span className="text-slate-400">Cashflow: </span>
+              <span className="text-muted-foreground">Cashflow: </span>
               <span
                 className={
                   surplus >= 0
-                    ? "font-medium text-emerald-300 mf-light:text-emerald-700"
-                    : "font-medium text-rose-500 mf-light:text-rose-800"
+                    ? "font-medium text-accent-success"
+                    : "font-medium text-accent-danger"
                 }
               >
                 {formatSignedAmount(surplus)}
@@ -334,9 +334,9 @@ export function JournalPageContent() {
           </div>
 
           {savedSummaries.length > 0 && (
-            <div className="border-t border-white/10 pt-3">
-              <p className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
-                <Archive className="h-3.5 w-3.5 shrink-0 text-slate-600" strokeWidth={1.5} aria-hidden />
+            <div className="border-t border-border pt-3">
+              <p className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-faint">
+                <Archive className="h-3.5 w-3.5 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
                 Archive
               </p>
               <div className="-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-color:color-mix(in_srgb,var(--mf-accent)_35%,transparent)_var(--mf-surface-card)] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-800/60 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-500/35 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-400/50">

@@ -22,22 +22,22 @@ export function BudgetItemRow({ item, onAmountChange, onLabelChange, onDelete }:
         value={item.label}
         onChange={(e) => onLabelChange(item.id, e.target.value)}
         aria-label="Line label"
-        className="w-full min-w-0 border-0 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500 focus:ring-0 mf-light:text-slate-900"
+        className="w-full min-w-0 border-0 bg-transparent text-sm text-slate-100 outline-none placeholder:text-faint focus:ring-0 mf-light:text-slate-900"
       />
       <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-900/80 px-3 py-1.5 transition focus-within:border-amber-300/40 focus-within:ring-1 focus-within:ring-amber-300/20 mf-light:border-slate-200 mf-light:bg-slate-50">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{currencyCode}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-faint">{currencyCode}</span>
         <BlurNumericInput
           value={Number.isFinite(item.amount) ? item.amount : 0}
           onValueChange={(amount) => onAmountChange(item.id, amount)}
           aria-label="Amount"
-          className="no-spinner w-full min-w-[100px] bg-transparent text-sm font-medium tabular-nums text-slate-100 outline-none mf-light:text-slate-900"
+          className="no-spinner w-full min-w-[100px] bg-transparent text-sm font-medium tabular-nums text-foreground outline-none"
         />
       </div>
       <button
         type="button"
         onClick={() => onDelete(item.id)}
         aria-label={`Delete ${item.label}`}
-        className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] p-2 text-slate-400 transition hover:border-white/20 hover:bg-white/10 hover:text-white mf-light:border-slate-200 mf-light:bg-slate-100 mf-light:hover:text-slate-800"
+        className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] p-2 text-slate-400 transition hover:border-border-strong hover:bg-white/10 hover:text-white mf-light:border-slate-200 mf-light:bg-slate-100 mf-light:hover:text-slate-800"
       >
         <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
       </button>

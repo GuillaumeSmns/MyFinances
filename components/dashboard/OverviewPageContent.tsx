@@ -17,7 +17,11 @@ import {
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { IconBox } from "@/components/dashboard/IconBox";
-import { SAMPLE_ASSET_ALLOCATION } from "@/components/dashboard/AssetAllocationChart";
+import { useAssetsDisplayCurrency } from "@/components/preferences/useAssetsDisplayCurrency";
+import { readAssetsAllocationForOverview } from "@/lib/assets-overview";
+import type { CategoryAllocationSlice } from "@/lib/assets-model";
+import { ASSETS_CHANGE_EVENT } from "@/lib/assets-storage";
+import { ASSETS_DISPLAY_CURRENCY_CHANGE_EVENT } from "@/lib/assets-preferences";
 import { CashflowAmountLine } from "@/components/dashboard/overview/CashflowAmountLine";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { useCurrency } from "@/components/preferences/CurrencyProvider";
@@ -38,15 +42,18 @@ const MonthlyCashflowChart = dynamic(
   { ssr: false, loading: () => <ChartSkeleton /> },
 );
 
-const AssetAllocationChart = dynamic(
-  () => import("@/components/dashboard/AssetAllocationChart").then((m) => m.AssetAllocationChart),
+const PatrimonyAllocationChart = dynamic(
+  () =>
+    import("@/components/dashboard/assets/PatrimonyAllocationChart").then(
+      (m) => m.PatrimonyAllocationChart,
+    ),
   { ssr: false, loading: () => <ChartSkeleton /> },
 );
 
 function ChartSkeleton() {
   return (
     <div
-      className="flex w-full animate-pulse items-center justify-center rounded-xl bg-white/[0.04] text-xs text-slate-500"
+      className="flex w-full animate-pulse items-center justify-center rounded-xl bg-white/[0.04] text-xs text-faint"
       style={{ height: 320 }}
     >
       Loading chart…
@@ -94,6 +101,21 @@ export function OverviewPageContent() {
   const [health, setHealth] = useState<JournalDerivedHealth>(FALLBACK_HEALTH);
   const [cashflowData, setCashflowData] = useState<CashflowMonthPoint[]>(() => buildSampleCashflowSeries());
   const [cashflowIsSample, setCashflowIsSample] = useState(true);
+  const assetsDisplayCurrency = useAssetsDisplayCurrency();
+  const [categoryAllocation, setCategoryAllocation] = useState<CategoryAllocationSlice[]>([]);
+
+  useEffect(() => {
+    const refreshAssets = () => {
+      setCategoryAllocation(readAssetsAllocationForOverview());
+    };
+    refreshAssets();
+    window.addEventListener(ASSETS_CHANGE_EVENT, refreshAssets);
+    window.addEventListener(ASSETS_DISPLAY_CURRENCY_CHANGE_EVENT, refreshAssets);
+    return () => {
+      window.removeEventListener(ASSETS_CHANGE_EVENT, refreshAssets);
+      window.removeEventListener(ASSETS_DISPLAY_CURRENCY_CHANGE_EVENT, refreshAssets);
+    };
+  }, []);
 
   useEffect(() => {
     startTransition(() => {
@@ -147,13 +169,9 @@ export function OverviewPageContent() {
   );
   const revenueShare = 100 - expenseShare;
 
-  const debtsHelper = hasJournalData
-    ? "Sum of Loan section lines (this month)"
-    : "Outstanding liabilities (sample)";
-  const investmentsHelper = hasJournalData
-    ? "Sum of Investment allocations (this month)"
-    : "Portfolio value (sample)";
-  const netCashHelper = hasJournalData ? "Revenue − expenses (latest saved month)" : "Revenue minus expenses (sample)";
+  const debtsHelper = hasJournalData ? undefined : "Outstanding liabilities (sample)";
+  const investmentsHelper = hasJournalData ? undefined : "Portfolio value (sample)";
+  const netCashHelper = hasJournalData ? "Revenue − expenses" : "Revenue minus expenses (sample)";
 
   const revExpSubtitle = hasJournalData && latestMonthKey
     ? `Latest saved month · ${formatMonthLabel(latestMonthKey)}`
@@ -180,8 +198,8 @@ export function OverviewPageContent() {
           <LayoutDashboard className="h-5 w-5" strokeWidth={1.5} />
         </IconBox>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white mf-light:text-slate-900">Overview</h1>
-          <p className="mt-1 max-w-2xl text-sm text-slate-400 mf-light:text-slate-600">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Overview</h1>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             {hasJournalData && latestMonthKey
               ? `Figures reflect your most recent month saved in Budget (${formatMonthLabel(latestMonthKey)}). Health signals are derived from that snapshot.`
               : "Monthly snapshot and financial health at a glance. Save a month in Budget to replace sample figures."}
@@ -190,19 +208,19 @@ export function OverviewPageContent() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <SummaryCard label="Total monthly revenue" value={monthlyRevenue} tone="positive" icon={ArrowUpRight} />
+        <SummaryCard label="Monthly Revenue" value={monthlyRevenue} tone="positive" icon={ArrowUpRight} />
         <SummaryCard
-          label="Total investments"
+          label="Monthly Investments"
           value={totalInvestments}
           tone="accent"
           helper={investmentsHelper}
           icon={Landmark}
         />
-        <SummaryCard label="Total monthly expenses" value={monthlyExpenses} tone="negative" icon={ArrowDownRight} />
+        <SummaryCard label="Monthly Expenses" value={monthlyExpenses} tone="negative" icon={ArrowDownRight} />
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <SummaryCard label="Total debts" value={totalDebts} helper={debtsHelper} icon={CreditCard} />
+        <SummaryCard label="Monthly loan repayments" value={totalDebts} helper={debtsHelper} icon={CreditCard} />
         <SummaryCard
           label="Cashflow"
           value={netCashFlow}
@@ -211,13 +229,7 @@ export function OverviewPageContent() {
           helper={netCashHelper}
           icon={Wallet}
         />
-        <SummaryCard
-          label="Savings rate"
-          value={savingsRate}
-          format="percent"
-          helper="Of after-tax inflows"
-          icon={Percent}
-        />
+        <SummaryCard label="Savings rate" value={savingsRate} format="percent" icon={Percent} />
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
@@ -235,7 +247,7 @@ export function OverviewPageContent() {
               <ArrowUpRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.5} aria-hidden />
               {formatAmount(monthlyRevenue)}
             </span>
-            <span className="flex items-center gap-2 text-rose-500 mf-light:text-rose-800">
+            <span className="flex items-center gap-2 text-accent-danger">
               <ArrowDownRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.5} aria-hidden />
               {formatAmount(monthlyExpenses)}
             </span>
@@ -246,7 +258,6 @@ export function OverviewPageContent() {
               <div className="mf-expense-fill h-full" style={{ width: `${expenseShare}%` }} />
             </div>
           </div>
-          <p className="mt-3 text-xs text-slate-400">Bar width reflects relative scale of revenue and expenses.</p>
         </DashboardCard>
 
         <DashboardCard
@@ -261,7 +272,7 @@ export function OverviewPageContent() {
           <ul className="space-y-4">
             <li className="flex items-center justify-between gap-4">
               <span className="flex items-center gap-2 text-sm text-slate-300">
-                <Activity className="h-4 w-4 shrink-0 text-slate-500" strokeWidth={1.5} aria-hidden />
+                <Activity className="h-4 w-4 shrink-0 text-faint" strokeWidth={1.5} aria-hidden />
                 Liquidity score
               </span>
               <span className="text-sm font-medium text-cyan-200">{health.liquidityScore}/100</span>
@@ -288,9 +299,9 @@ export function OverviewPageContent() {
           }
         >
           <MonthlyCashflowChart data={cashflowData} />
-          <div className="mt-4 border-t border-white/10 pt-4 mf-light:border-slate-200">
+          <div className="mt-4 border-t border-border pt-4">
             <CashflowAmountLine value={netCashFlow} />
-            <p className="mt-1 text-xs text-slate-500 mf-light:text-slate-500">
+            <p className="mt-1 text-xs text-faint">
               {hasJournalData && latestMonthKey
                 ? `Latest saved month · ${formatMonthLabel(latestMonthKey)}`
                 : "Sample month"}
@@ -300,17 +311,21 @@ export function OverviewPageContent() {
 
         <DashboardCard
           title="Asset allocation"
-          subtitle="Portfolio mix (illustrative)"
+          subtitle={
+            categoryAllocation.length > 0
+              ? `By category · converted to ${assetsDisplayCurrency}`
+              : "From Assets · by category"
+          }
           titleIcon={
             <IconBox>
               <PieChart className="h-4 w-4" strokeWidth={1.5} />
             </IconBox>
           }
         >
-          <AssetAllocationChart data={SAMPLE_ASSET_ALLOCATION} />
-          <p className="mt-4 border-t border-white/10 pt-3 text-center text-xs text-slate-500">
-            Sample asset allocation — will connect to Assets data later.
-          </p>
+          <PatrimonyAllocationChart
+            slices={categoryAllocation}
+            displayCurrency={assetsDisplayCurrency}
+          />
         </DashboardCard>
       </section>
     </div>

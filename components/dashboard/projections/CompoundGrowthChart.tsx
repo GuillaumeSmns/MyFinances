@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { COMPOUND_CHART_THEME } from "@/lib/compound-interest-chart-theme";
+import { useCompoundChartTheme } from "@/components/theme/useChartTheme";
 import {
   getProjectionStartYear,
   yearOffsetToProjectedYear,
@@ -29,8 +29,6 @@ type CompoundGrowthChartProps = {
   totalYears: number;
   startYear?: number;
 };
-
-const theme = COMPOUND_CHART_THEME;
 
 function toChartRows(data: CompoundInterestYearPoint[], startYear: number): ChartRow[] {
   return data.map((point) => ({
@@ -53,6 +51,7 @@ export function CompoundGrowthChart({
   totalYears,
   startYear = getProjectionStartYear(),
 }: CompoundGrowthChartProps) {
+  const theme = useCompoundChartTheme();
   const rows = toChartRows(data, startYear);
   const endYearOffset = Math.max(0, totalYears);
   const xTicks = endYearOffset > 0 ? [0, endYearOffset] : [0];
@@ -84,7 +83,7 @@ export function CompoundGrowthChart({
             ticks={xTicks}
             tick={{ fill: theme.axis, fontSize: 11 }}
             tickLine={false}
-            axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
+            axisLine={{ stroke: theme.axisLine }}
             tickFormatter={(y) => formatXAxisTick(y, endYearOffset)}
             padding={{ left: 8, right: 8 }}
           />

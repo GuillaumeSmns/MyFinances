@@ -24,12 +24,12 @@ function SignupConfirmation({ email, resendNotice, onResendPlaceholder }: Signup
         <Mail className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} aria-hidden />
         Confirmation sent
       </span>
-      <h1 className="text-2xl font-semibold tracking-tight text-white mf-light:text-slate-900">
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">
         Check your email to confirm your account.
       </h1>
-      <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-slate-400 mf-light:text-slate-600">
+      <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
         We&apos;ve sent a confirmation link to{" "}
-        <span className="font-medium text-slate-200 mf-light:text-slate-800">{email}</span>. Please confirm
+        <span className="font-medium text-secondary">{email}</span>. Please confirm
         your email before logging in.
       </p>
       <div className="mt-8 space-y-3">
@@ -51,7 +51,7 @@ function SignupConfirmation({ email, resendNotice, onResendPlaceholder }: Signup
             {resendNotice}
           </p>
         ) : (
-          <p className="text-xs text-slate-500 mf-light:text-slate-500">
+          <p className="text-xs text-faint">
             Resend will be available in a future update.
           </p>
         )}
@@ -136,10 +136,10 @@ export function SignupForm() {
         ) : (
           <>
             <div className="mb-8 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight text-white mf-light:text-slate-900">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Create your account
               </h1>
-              <p className="mt-2 text-sm text-slate-400 mf-light:text-slate-600">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Start tracking your finances with MyFinances.
               </p>
             </div>
@@ -148,7 +148,7 @@ export function SignupForm() {
               <div>
                 <label
                   htmlFor="signup-name"
-                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500 mf-light:text-slate-500"
+                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-faint"
                 >
                   Full name
                 </label>
@@ -159,13 +159,13 @@ export function SignupForm() {
                   autoComplete="name"
                   required
                   placeholder="Jane Doe"
-                  className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
+                  className="w-full rounded-xl border border-border bg-input px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-faint focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
                 />
               </div>
               <div>
                 <label
                   htmlFor="signup-email"
-                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500 mf-light:text-slate-500"
+                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-faint"
                 >
                   Email
                 </label>
@@ -176,13 +176,13 @@ export function SignupForm() {
                   autoComplete="email"
                   required
                   placeholder="you@example.com"
-                  className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
+                  className="w-full rounded-xl border border-border bg-input px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-faint focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
                 />
               </div>
               <div>
                 <label
                   htmlFor="signup-password"
-                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500 mf-light:text-slate-500"
+                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-faint"
                 >
                   Password
                 </label>
@@ -193,13 +193,13 @@ export function SignupForm() {
                   autoComplete="new-password"
                   required
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
+                  className="w-full rounded-xl border border-border bg-input px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-faint focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
                 />
               </div>
               <div>
                 <label
                   htmlFor="signup-confirm"
-                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500 mf-light:text-slate-500"
+                  className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-faint"
                 >
                   Confirm password
                 </label>
@@ -210,7 +210,7 @@ export function SignupForm() {
                   autoComplete="new-password"
                   required
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/12 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20 mf-light:border-slate-200 mf-light:bg-white mf-light:text-slate-900 mf-light:placeholder:text-slate-400"
+                  className="w-full rounded-xl border border-border bg-input px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-faint focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
                 />
               </div>
 
@@ -232,11 +232,11 @@ export function SignupForm() {
               </button>
             </form>
 
-            <p className="mt-8 text-center text-sm text-slate-400 mf-light:text-slate-600">
+            <p className="mt-8 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="font-medium text-cyan-300 hover:text-cyan-200 mf-light:text-cyan-700 mf-light:hover:text-cyan-600"
+                className="font-medium text-cyan-300 hover:text-cyan-400 mf-light:hover:text-cyan-600"
               >
                 Log in
               </Link>

@@ -14,7 +14,7 @@ const itemBase =
   "group flex w-full items-center gap-3 rounded-lg border px-3 transition mf-light:hover:border-cyan-400/35 mf-light:hover:bg-cyan-500/5 mf-light:hover:text-cyan-800";
 
 const parentActive =
-  "border-cyan-300/40 bg-cyan-500/15 text-cyan-100 mf-light:border-cyan-400/50 mf-light:bg-cyan-500/10 mf-light:text-cyan-900";
+  "border-cyan-400/40 bg-cyan-500/15 text-cyan-300";
 
 const parentInactive =
   "border-transparent text-slate-300 hover:border-cyan-300/30 hover:bg-cyan-500/10 hover:text-cyan-200 mf-light:text-slate-600";
@@ -47,8 +47,8 @@ export function ProjectionsNavSection({ pathname, variant }: ProjectionsNavSecti
         <Icon
           className={`${isSidebar ? "h-[18px] w-[18px]" : "h-4 w-4"} shrink-0 transition ${
             projectionsActive
-              ? "text-cyan-200 mf-light:text-cyan-700"
-              : "text-slate-500 group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
+              ? "text-cyan-400"
+              : "text-faint group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
           }`}
           strokeWidth={1.5}
           aria-hidden
@@ -57,7 +57,7 @@ export function ProjectionsNavSection({ pathname, variant }: ProjectionsNavSecti
         <ChevronDown
           className={`h-4 w-4 shrink-0 transition-transform duration-300 ${
             expanded ? "rotate-180" : ""
-          } ${projectionsActive ? "text-cyan-200/80 mf-light:text-cyan-700" : "text-slate-500"}`}
+          } ${projectionsActive ? "text-cyan-200/80 mf-light:text-cyan-700" : "text-faint"}`}
           strokeWidth={1.5}
           aria-hidden
         />

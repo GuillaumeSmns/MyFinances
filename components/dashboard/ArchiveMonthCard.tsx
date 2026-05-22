@@ -40,7 +40,7 @@ export function ArchiveMonthCard({
         className="flex w-full min-h-[148px] flex-col rounded-lg px-3 pb-3 pt-3 pr-9 text-left"
       >
         <div className="mb-3 flex items-start justify-between gap-2 border-b border-white/[0.08] pb-2 mf-light:border-slate-200">
-          <span className="text-xs font-semibold leading-snug text-white mf-light:text-slate-900">{formatMonthLabel(monthKey)}</span>
+          <span className="text-xs font-semibold leading-snug text-foreground">{formatMonthLabel(monthKey)}</span>
           <span className="inline-flex shrink-0 items-center gap-0.5 rounded border border-emerald-400/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-200">
             <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden />
             Saved
@@ -48,22 +48,22 @@ export function ArchiveMonthCard({
         </div>
         <dl className="flex flex-1 flex-col justify-center gap-2.5 text-[11px] leading-tight">
           <div className="flex items-baseline justify-between gap-2">
-            <dt className="shrink-0 text-slate-500">Revenue</dt>
+            <dt className="shrink-0 text-faint">Revenue</dt>
             <dd className="truncate font-semibold tabular-nums text-emerald-200/95">{formatAmount(revenue)}</dd>
           </div>
           <div className="flex items-baseline justify-between gap-2">
-            <dt className="shrink-0 text-slate-500">Expenses</dt>
+            <dt className="shrink-0 text-faint">Expenses</dt>
             <dd className="truncate font-semibold tabular-nums mf-text-expense mf-light:text-rose-800">
               {formatAmount(expenses)}
             </dd>
           </div>
           <div className="flex items-baseline justify-between gap-2">
-            <dt className="shrink-0 text-slate-500">Cashflow</dt>
+            <dt className="shrink-0 text-faint">Cashflow</dt>
             <dd
               className={`truncate font-semibold tabular-nums ${
                 cashflowPositive
-                  ? "text-emerald-300 mf-light:text-emerald-700"
-                  : "text-rose-500 mf-light:text-rose-800"
+                  ? "text-accent-success"
+                  : "text-accent-danger"
               }`}
             >
               {formatSignedAmount(surplus)}
@@ -79,7 +79,7 @@ export function ArchiveMonthCard({
           e.stopPropagation();
           onDelete();
         }}
-        className="absolute right-1.5 top-1.5 z-20 flex h-7 w-7 items-center justify-center rounded border border-white/10 bg-slate-950/90 text-sm leading-none text-slate-500 transition hover:border-white/20 hover:bg-white/10 hover:text-slate-200 mf-light:border-slate-200 mf-light:bg-white mf-light:hover:border-slate-300 mf-light:hover:bg-slate-200 mf-light:hover:text-slate-800"
+        className="absolute right-1.5 top-1.5 z-20 flex h-7 w-7 items-center justify-center rounded border border-white/10 bg-slate-950/90 text-sm leading-none text-faint transition hover:border-border-strong hover:bg-white/10 hover:text-slate-200 mf-light:border-slate-200 mf-light:bg-white mf-light:hover:border-slate-300 mf-light:hover:bg-slate-200 mf-light:hover:text-slate-800"
       >
         ×
       </button>

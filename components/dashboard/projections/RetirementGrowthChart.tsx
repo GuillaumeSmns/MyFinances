@@ -13,7 +13,7 @@ import {
   YAxis,
 } from "recharts";
 import { formatChartAxisValue, formatUsd } from "@/lib/compound-interest";
-import { COMPOUND_CHART_THEME } from "@/lib/compound-interest-chart-theme";
+import { useCompoundChartTheme } from "@/components/theme/useChartTheme";
 import type { RetirementYearPoint } from "@/lib/retirement-planning";
 
 type RetirementGrowthChartProps = {
@@ -22,13 +22,12 @@ type RetirementGrowthChartProps = {
   retirementAge: number | null;
 };
 
-const theme = COMPOUND_CHART_THEME;
-
 export function RetirementGrowthChart({
   data,
   targetRetirementCapital,
   retirementAge,
 }: RetirementGrowthChartProps) {
+  const theme = useCompoundChartTheme();
   if (data.length === 0) return null;
 
   const minAge = data[0].age;
@@ -60,7 +59,7 @@ export function RetirementGrowthChart({
             allowDataOverflow={false}
             tick={{ fill: theme.axis, fontSize: 11 }}
             tickLine={false}
-            axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
+            axisLine={{ stroke: theme.axisLine }}
             tickFormatter={(age) => {
               const a = Number(age);
               if (a === minAge) return "Today";

@@ -27,15 +27,15 @@ export function DashboardMobileNav() {
                 href={href}
                 className={`group flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition ${
                   active
-                    ? "border-cyan-300/40 bg-cyan-500/15 text-cyan-100 mf-light:border-cyan-400/50 mf-light:bg-cyan-500/10 mf-light:text-cyan-900"
+                    ? "border-cyan-400/40 bg-cyan-500/15 text-cyan-300"
                     : "border-white/10 text-slate-200 hover:border-cyan-300/35 hover:bg-white/5 hover:text-cyan-100 mf-light:border-slate-200 mf-light:text-slate-700 mf-light:hover:border-cyan-400/40 mf-light:hover:bg-cyan-500/5 mf-light:hover:text-cyan-800"
                 }`}
               >
                 <Icon
                   className={`h-4 w-4 shrink-0 transition ${
                     active
-                      ? "text-cyan-200 mf-light:text-cyan-700"
-                      : "text-slate-500 group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
+                      ? "text-cyan-400"
+                      : "text-faint group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
                   }`}
                   strokeWidth={1.5}
                   aria-hidden
@@ -53,15 +53,15 @@ export function DashboardMobileNav() {
                 href={href}
                 className={`group flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition ${
                   active
-                    ? "border-cyan-300/40 bg-cyan-500/15 text-cyan-100 mf-light:border-cyan-400/50 mf-light:bg-cyan-500/10 mf-light:text-cyan-900"
+                    ? "border-cyan-400/40 bg-cyan-500/15 text-cyan-300"
                     : "border-white/10 text-slate-200 hover:border-cyan-300/35 hover:bg-white/5 hover:text-cyan-100 mf-light:border-slate-200 mf-light:text-slate-700 mf-light:hover:border-cyan-400/40 mf-light:hover:bg-cyan-500/5 mf-light:hover:text-cyan-800"
                 }`}
               >
                 <Icon
                   className={`h-4 w-4 shrink-0 transition ${
                     active
-                      ? "text-cyan-200 mf-light:text-cyan-700"
-                      : "text-slate-500 group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
+                      ? "text-cyan-400"
+                      : "text-faint group-hover:text-cyan-200/90 mf-light:group-hover:text-cyan-700"
                   }`}
                   strokeWidth={1.5}
                   aria-hidden

@@ -14,12 +14,12 @@ export function CashflowAmountLine({ value, className = "" }: CashflowAmountLine
 
   return (
     <span className={`text-sm ${className}`}>
-      <span className="text-slate-400 mf-light:text-slate-600">Cashflow </span>
+      <span className="text-muted-foreground">Cashflow </span>
       <span
         className={
           positive
-            ? "font-medium text-emerald-300 mf-light:text-emerald-700"
-            : "font-medium text-rose-500 mf-light:text-rose-800"
+            ? "font-medium text-accent-success"
+            : "font-medium text-accent-danger"
         }
       >
         ({formatSignedAmount(value)})

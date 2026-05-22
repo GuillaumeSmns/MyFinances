@@ -12,7 +12,7 @@ export function BudgetTabs({ activeTab, onTabChange }: BudgetTabsProps) {
     <nav
       role="tablist"
       aria-label="Budget sections"
-      className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-slate-900/50 p-1.5 mf-light:border-slate-200 mf-light:bg-white/90"
+      className="flex flex-wrap gap-2 rounded-2xl border border-border bg-card p-1.5"
     >
       {BUDGET_TABS.map((tab) => {
         const isActive = activeTab === tab.id;

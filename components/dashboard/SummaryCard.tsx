@@ -24,19 +24,19 @@ export function SummaryCard({
   const { formatAmount, formatSignedAmount } = useCurrency();
   const toneClass =
     tone === "positive"
-      ? "text-emerald-300 mf-light:text-emerald-700"
+      ? "text-accent-success"
       : tone === "negative"
-        ? "text-rose-500 mf-light:text-rose-800"
+        ? "text-accent-danger"
         : tone === "accent"
           ? "mf-text-investment"
-          : "text-white mf-light:text-slate-900";
+          : "text-foreground";
 
   return (
     <DashboardCard className="h-full">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm text-slate-400 mf-light:text-slate-600">{label}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
         {Icon && (
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-slate-500 transition group-hover:border-cyan-300/20 group-hover:text-cyan-200/90 mf-light:border-slate-200 mf-light:bg-slate-100 mf-light:text-slate-500 mf-light:group-hover:border-cyan-400/40 mf-light:group-hover:text-cyan-700">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-overlay text-faint transition group-hover:border-cyan-400/30 group-hover:text-cyan-500">
             <Icon className="h-4 w-4" strokeWidth={1.5} aria-hidden />
           </span>
         )}
@@ -48,7 +48,7 @@ export function SummaryCard({
             ? formatSignedAmount(value)
             : formatAmount(value)}
       </p>
-      {helper && <p className="mt-2 text-xs text-slate-400 mf-light:text-slate-600">{helper}</p>}
+      {helper && <p className="mt-2 text-xs text-muted-foreground">{helper}</p>}
     </DashboardCard>
   );
 }

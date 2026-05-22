@@ -36,7 +36,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 mf-light:bg-slate-100 mf-light:text-slate-900">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider initialTheme={initialTheme}>{children}</ThemeProvider>
       </body>
     </html>
